@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine.UI;
 
 public class BufferHandlerPS1 : MonoBehaviour
@@ -9,6 +10,7 @@ public class BufferHandlerPS1 : MonoBehaviour
 	public Material material;
 	public Material lightHaloMat;
 
+	ComputeBuffer[] ColBuffer = new ComputeBuffer[2];
 	ComputeBuffer[] PosBuffer = new ComputeBuffer[2];
 	ComputeBuffer[] VelBuffer = new ComputeBuffer[2];
 	ComputeBuffer[] IdAgeBuffer = new ComputeBuffer[2];
@@ -21,6 +23,16 @@ public class BufferHandlerPS1 : MonoBehaviour
 
 	ComputeBuffer argBuffer;
 	ComputeBuffer deadBuffArgBuff;
+
+	public Material cubeMat;
+	public float cubeCompressionMult;
+	public int cubeCountSide = 8;
+	int cubeCountTotal;
+	ComputeBuffer[] CubeDimBuffer = new ComputeBuffer[2];
+
+	ComputeBuffer audioLevelsBuffer;
+
+
 	public bool debugframe = false;
 	public ComputeShader cShade;
 	public Transform gravityObject;
@@ -61,6 +73,9 @@ public class BufferHandlerPS1 : MonoBehaviour
 	public int liveParticles = 0;
 	public int deadParticles = 0;
 
+
+	
+
 	void Start()
 	{
 		psystem = MiscPSystemControls.inst;
@@ -71,6 +86,11 @@ public class BufferHandlerPS1 : MonoBehaviour
 
 
 		int sqrtCount = (int)Mathf.Sqrt(count);
+
+		ColBuffer[READ] = new ComputeBuffer(count, sizeof(float) * 4, ComputeBufferType.Default);
+		ColBuffer[WRITE] = new ComputeBuffer(count, sizeof(float) * 4, ComputeBufferType.Default);
+
+
 		PosBuffer[READ] = new ComputeBuffer(count, sizeof(float) * 3, ComputeBufferType.Default);
 		VelBuffer[READ] = new ComputeBuffer(count, sizeof(float) * 3, ComputeBufferType.Default);
 		PosBuffer[WRITE] = new ComputeBuffer(count, sizeof(float) * 3, ComputeBufferType.Default);
@@ -79,6 +99,7 @@ public class BufferHandlerPS1 : MonoBehaviour
 		IdAgeBuffer[WRITE] = new ComputeBuffer(count, sizeof(float) * 2, ComputeBufferType.Default);
 		IdAgeBuffer[READ] = new ComputeBuffer(count, sizeof(float) * 2, ComputeBufferType.Default);
 
+
 		DeadBuffer = new ComputeBuffer(count, sizeof(int), ComputeBufferType.Append);
 		LiveBuffer = new ComputeBuffer(count, sizeof(int), ComputeBufferType.Counter);
 
@@ -86,6 +107,8 @@ public class BufferHandlerPS1 : MonoBehaviour
 		Vector3[] velocities = new Vector3[count];
 		Vector2[] idAges = new Vector2[count];
 		int[] indecies = new int[count];
+
+		Vector4[] colorz = new Vector4[count];
 
 		argBuffer = new ComputeBuffer(4, sizeof(int), ComputeBufferType.IndirectArguments);
 		deadBuffArgBuff = new ComputeBuffer(4, sizeof(int), ComputeBufferType.IndirectArguments);
@@ -98,7 +121,10 @@ public class BufferHandlerPS1 : MonoBehaviour
 			velocities[i] = Vector3.one * 0.01f;
 
 			idAges[i] = new Vector2(0, -1.0f);
+
+			colorz[i] = new Vector4(0, 0, 0, 0);
 		}
+
 		PosBuffer[READ].SetData(points);
 		PosBuffer[WRITE].SetData(points);
 
@@ -108,11 +134,51 @@ public class BufferHandlerPS1 : MonoBehaviour
 		IdAgeBuffer[READ].SetData(idAges);
 		IdAgeBuffer[WRITE].SetData(idAges);
 
+		ColBuffer[READ].SetData(colorz);
+		ColBuffer[WRITE].SetData(colorz);
+
 		DeadBuffer.SetData(indecies);
 		DeadBuffer.SetCounterValue((uint)(count));
 		lastVelMod = IsPlaying;
 
 
+
+		cubeCountSide = Mathf.ClosestPowerOfTwo(Mathf.Abs(cubeCountSide));
+		cubeCountTotal = (int)Mathf.Pow(cubeCountSide, 2);
+
+		CubeDimBuffer[WRITE] = new ComputeBuffer(cubeCountTotal, sizeof(float) * 4, ComputeBufferType.Default);
+		CubeDimBuffer[READ] = new ComputeBuffer(cubeCountTotal, sizeof(float) * 4, ComputeBufferType.Default);
+		cShade.SetInt("_CubeCount", cubeCountTotal);
+
+		CubeDats[] cubdat = new CubeDats[cubeCountTotal];
+		Vector2 WLdims = new Vector2(1.5f, 1.5f);
+
+		for (int i = 0; i < cubeCountTotal; i++)
+		{
+			int xcoord = (int)(i / cubeCountSide);
+			int ycoord = (int)(i % cubeCountSide);
+
+			float truheight = Mathf.Abs((float)xcoord - cubeCountSide*0.5f) + Mathf.Abs((float)ycoord - cubeCountSide * 0.5f);
+
+			CubeDats newdat = new CubeDats(new Vector2(xcoord, ycoord), WLdims, truheight*0.2f, 0f, new Vector3(-cubeCountSide * 0.5f* WLdims.x, 0f, -cubeCountSide * 0.5f* WLdims.y));
+
+			newdat.dims *= 0.5f;
+			cubdat[i] = newdat;
+		}
+
+		GameObject papa = new GameObject();
+		for (int i = 0; i < cubeCountTotal; i++)
+		{
+			GameObject newcub = GameObject.CreatePrimitive(PrimitiveType.Cube);
+
+			newcub.GetComponent<MeshRenderer>().material = this.cubeMat;
+			newcub.transform.position = cubdat[i].center;
+			newcub.transform.localScale = cubdat[i].dims*2f;
+			newcub.transform.SetParent(papa.transform);
+		}
+
+		CubeDimBuffer[READ].SetData(cubdat);
+		CubeDimBuffer[WRITE].SetData(cubdat);
 
 	}
 
@@ -164,6 +230,8 @@ public class BufferHandlerPS1 : MonoBehaviour
 		LiveBuffer.SetCounterValue(0);
 
         Shader.SetGlobalVector("_MaxAge", new Vector4(psystem.ParticleAgeMin, psystem.ParticleAgeVariation, psystem.ParticleAgeVariation + psystem.ParticleAgeMin, 0.0f));
+
+		cShade.SetFloat("_CubeCompressionMult", this.cubeCompressionMult);
 
 		DoSpawning();
 
@@ -307,6 +375,12 @@ public class BufferHandlerPS1 : MonoBehaviour
 		cShade.SetBuffer(cShade.FindKernel(_SimKernelName), "AliveList", LiveBuffer);		
 		cShade.SetBuffer(cShade.FindKernel(_SimKernelName), "AdeadList", DeadBuffer);
 
+		cShade.SetBuffer(cShade.FindKernel(_SimKernelName), "RcubeDat", CubeDimBuffer[READ]);
+
+
+		this.cubeMat.SetBuffer("_ParticlePosition", PosBuffer[READ]);
+		this.cubeMat.SetBuffer("_LivingParticles", LiveBuffer);
+		this.cubeMat.SetInt("_LiveParticleCount", this.liveParticles);
 
 		//RUN THE SIM
 		cShade.Dispatch(cShade.FindKernel(_SimKernelName), count/64, 1, 1);
@@ -319,20 +393,20 @@ public class BufferHandlerPS1 : MonoBehaviour
 	{
 
 		int[] args = GetArgs(LiveBuffer, argBuffer);
-
 		this.liveParticles = args[0];
+
 		int[] dedargs = GetArgs(DeadBuffer, deadBuffArgBuff);
 		this.deadParticles = dedargs[0];
 
 
-        lightHaloMat.SetPass(0);
+        /*lightHaloMat.SetPass(0);
         lightHaloMat.SetBuffer("_VertPos", PosBuffer[READ]);
         lightHaloMat.SetBuffer("_VertVel", VelBuffer[READ]);
         lightHaloMat.SetBuffer("_VertDat", IdAgeBuffer[READ]);
         lightHaloMat.SetBuffer("_LivingID", LiveBuffer);
 
         Graphics.DrawProceduralIndirect(MeshTopology.Points, argBuffer);
-
+		*/
         material.SetPass(0);
         material.SetBuffer("_VertPos", PosBuffer[READ]);
         material.SetBuffer("_VertVel", VelBuffer[READ]);
@@ -353,11 +427,17 @@ public class BufferHandlerPS1 : MonoBehaviour
 		IdAgeBuffer[WRITE].Release();
 		IdAgeBuffer[READ].Release();
 
+		ColBuffer[WRITE].Release();
+		ColBuffer[READ].Release();
+
 		argBuffer.Release();
 		this.deadBuffArgBuff.Release();
 
 		DeadBuffer.Release();
 		LiveBuffer.Release();
+
+		CubeDimBuffer[READ].Release();
+		CubeDimBuffer[WRITE].Release();
 
 	}
 
@@ -365,4 +445,32 @@ public class BufferHandlerPS1 : MonoBehaviour
 
 
 
+}
+
+
+public struct CubeDats
+{
+	public Vector3 center;
+	public Vector3 dims;
+	public float upspeed;
+
+	public CubeDats(Vector3 pCn, Vector3 pDm, float pUp)
+	{
+		center = pCn;
+		dims = pDm;
+		upspeed = pUp;
+	}
+
+
+	public CubeDats(Vector2 xzOff, Vector2 widthLength, float percievedHeight, float pUp, Vector3 gridOffset = default(Vector3), float baseHeightDim = 2f)
+	{
+		center = gridOffset;
+		center.y -= baseHeightDim*0.5f;
+		dims = new Vector3(widthLength.x+0.02f, baseHeightDim, widthLength.y + 0.02f);
+
+		dims.y += percievedHeight * 2f;
+
+		center += new Vector3(xzOff.x * widthLength.x, 0, xzOff.y * widthLength.y);
+		upspeed = pUp;
+	}
 }

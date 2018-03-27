@@ -20,8 +20,10 @@ float4 _EmitPos;
 
 float4 _PartAgeVariance;
 
-
 float4 _WindDats;
+
+float _CubeCompressionMult;
+int _CubeCount;
 
 
 RWStructuredBuffer<float3> WvertPos;
@@ -34,6 +36,92 @@ StructuredBuffer<float2> RvertDat;
 
 AppendStructuredBuffer<int> AliveList;
 AppendStructuredBuffer<int> AdeadList;
+
+struct cubeDimsDat
+{
+    float3 posCenter;
+    float4 sizeWbounce;
+};
+
+StructuredBuffer<cubeDimsDat> RcubeDat;
+
+
+struct partposDat
+{
+    float3 partPos;
+    float3 partVel;
+    float didcol;
+};
+
+
+
+float binLineCollide(float num, float cent, float rad)
+{
+    return ceil(saturate(rad - abs(num - cent)));
+}
+
+float lineCollide(float num, float cent, float rad)
+{
+    return sign(num - cent) * ceil(saturate(rad - abs(num - cent) ));
+}
+
+float isGreater(float A, float B)
+{
+    return saturate(ceil(0.007 + A - B));
+}
+
+partposDat cubeCollide(float3 inpartPos, float3 inpartVel, float3 center, float3 dims, float cubeUpVel)
+{	
+    float xcollide = lineCollide(inpartPos.x, center.x, dims.x);
+    float ycollide = lineCollide(inpartPos.y, center.y, dims.y);
+    float zcollide = lineCollide(inpartPos.z, center.z, dims.z);
+
+    float didcollide = abs(xcollide) * abs(ycollide) * abs(zcollide); //binLineCollide(inpartPos.x, center.x, dims.x) * binLineCollide(inpartPos.y, center.y, dims.y) * binLineCollide(inpartPos.z, center.z, dims.z);
+
+    
+
+
+    
+    float3 diff = abs(inpartPos - center)/dims;
+
+    float xprio = isGreater(diff.x, diff.y) * isGreater(diff.x, diff.z);
+    float yprio = isGreater(diff.y, diff.x) * isGreater(diff.y, diff.z);
+    float zprio = isGreater(diff.z, diff.x) * isGreater(diff.z, diff.y);
+
+    partposDat returndat;
+
+    returndat.partPos = inpartPos;
+
+    returndat.partVel.x = lerp(inpartVel.x, xcollide * abs(inpartVel.x) * _PartBounceFricDrag.x, didcollide * xprio);
+    returndat.partVel.y = lerp(inpartVel.y, ycollide * abs(inpartVel.y) * _PartBounceFricDrag.x, didcollide * yprio);
+    returndat.partVel.z = lerp(inpartVel.z, zcollide * abs(inpartVel.z) * _PartBounceFricDrag.x, didcollide * zprio);
+
+    returndat.partPos.x = lerp(inpartPos.x, center.x + dims.x * xcollide, didcollide * xprio);//have the pos jump up a bit based on how de ep it went
+    returndat.partPos.y = lerp(inpartPos.y, center.y + dims.y * ycollide, didcollide * yprio);
+    returndat.partPos.z = lerp(inpartPos.z, center.z + dims.z * zcollide, didcollide * zprio);
+
+    xprio = didcollide * saturate(yprio + zprio);
+    yprio = didcollide * saturate(xprio + zprio);
+    zprio = didcollide * saturate(xprio + yprio);
+    
+    returndat.partVel.x = lerp(returndat.partVel.x, returndat.partVel.x * _PartBounceFricDrag.y, xprio);
+    returndat.partVel.y = lerp(returndat.partVel.y, returndat.partVel.y * _PartBounceFricDrag.y, yprio);
+    returndat.partVel.z = lerp(returndat.partVel.z, returndat.partVel.z * _PartBounceFricDrag.y, zprio);
+
+    //returndat.partVel.x = lerp(returndat.partVel.x, 0.01, didcollide);
+    //returndat.partVel.y = lerp(returndat.partVel.y, 0.01, didcollide);
+    //returndat.partVel.z = lerp(returndat.partVel.z, 0.01, didcollide);
+
+    returndat.didcol = didcollide;
+
+    return returndat;
+}
+
+partposDat cubeCollide(float3 inpartPos, float3 inpartVel, cubeDimsDat cubDatz)
+{
+    return cubeCollide(inpartPos, inpartVel, cubDatz.posCenter, cubDatz.sizeWbounce.xyz, cubDatz.sizeWbounce.w);
+}
+
 
 
 
@@ -60,51 +148,53 @@ void CSMain (uint3 id : SV_DispatchThreadID)
 		vel *= lerp(_SuckDampSphereMousedown.x, 1, saturate(dist) );
 		float3 newvel = dir*lerp(_SuckstrInOutdistInOut.x, _SuckstrInOutdistInOut.y, saturate(dist))*_SuckDampSphereMousedown.w;
 
-		newvel += _GravityDirAndStr.xyz *_GravityDirAndStr.w*(saturate(lastPos.y*5.0))*_SuckDampSphereMousedown.w;
-
+        //gravity
+		//newvel += _GravityDirAndStr.xyz *_GravityDirAndStr.w*(saturate(lastPos.y*5.0))*_SuckDampSphereMousedown.w;
+        newvel += _GravityDirAndStr.xyz * _GravityDirAndStr.w * _SuckDampSphereMousedown.w;
 
 		//DELTATIME
 		vel += newvel*_SingularityPosANDdt.w;
 		 
-		//BounceCalc
+
+        vel -= vel.xyz * _PartBounceFricDrag.z * (60.0 * _SingularityPosANDdt.w); //subtracts the drag variable
+
+		//BounceCalc 
 		float3 newpos = lastPos + vel*_SingularityPosANDdt.w*60;
-		float bounce = abs((sign(newpos.y)-1)*0.5);
-		lastPos.y = abs(newpos.y);
+		//float bounce = abs((sign(newpos.y)-1)*0.5);
+
+		//lastPos.y = abs(newpos.y);
 		
 		//bounce calc and floor drag
-		vel.y = lerp(vel.y, abs(vel.y*_PartBounceFricDrag.x),  bounce);//if it is bounce= flips the y velocity and multiplies it by the bounce coefficient
-		vel.xz = lerp(vel.xz, vel.xz*_PartBounceFricDrag.y, bounce);
-		
+		//vel.y = lerp(vel.y, abs(vel.y*_PartBounceFricDrag.x),  bounce);//if it is bounce= flips the y velocity and multiplies it by the bounce coefficient
+		//vel.xz = lerp(vel.xz, vel.xz*_PartBounceFricDrag.y, bounce);
+        
+        
+        //partposDat bouncedat = cubeCollide(newpos, vel, float3(0, -20, 0), float3(50, 10, 50));
+        //vel = bouncedat.partVel;
+        //lastPos = bouncedat.partPos;
+
+        float3 colvel = vel;
+        float3 colpos = newpos;
+        for (int i = 0; i < _CubeCount; i++)
+        {
+            partposDat bouncedat = cubeCollide(colpos, colvel, RcubeDat[i]);
+
+            
+            colvel = bouncedat.partVel; //lerp(colvel, bouncedat.partVel, bouncedat.didcol);
+            colpos = bouncedat.partPos; //lerp(colpos, bouncedat.partPos, bouncedat.didcol);
+
+        }
+
+        vel = colvel;
+        lastPos = colpos;
+
+
 		//overallDrag
-		vel -= vel.xyz*_PartBounceFricDrag.z * (60.0*_SingularityPosANDdt.w);//subtracts the drag variable
 
 
-		//DO WIND
-		//float3 windCalc = float3(0,0,0);
-		//
-		//
-		//float3 timeVar = float3(_Time + 0.5*cos(_Time - 3.5341),   _Time,  _Time - 0.5*sin(_Time + 7.3311)) * _WindDats.z;
-		//windCalc.x = SimplexDerivedJordan(lastPos.xyz*_WindDats.w, 4, timeVar , 0.16, 0.8, 4.22, 0.86, 0.29, 0.25, 1, 1, 1);
-		//
-		//timeVar = float3(_Time + 0.5*cos(-_Time - 6.3154), -_Time, -_Time + 0.5*sin(_Time + 2.2345)) * _WindDats.z + 1255.1256;
-		//windCalc.y = SimplexDerivedJordan(lastPos.xyz*_WindDats.w, 4, timeVar , 0.16, 0.8, 4.22, 0.86, 0.29, 0.25, 1, 1, 1);
-		//
-		//timeVar = float3(_Time - 0.5*sin(-_Time + 1.3635),  _Time,  _Time - 0.5*cos(-_Time + 1.3145)) * _WindDats.z - 2135.3523;
-		//windCalc.z = SimplexDerivedJordan(lastPos.xyz*_WindDats.w, 4, timeVar , 0.16, 0.8, 4.22, 0.86, 0.29, 0.25, 1, 1, 1);
-		//
-		//
-		//float3 wind = rotDir(float3(0,0,1), windCalc.xy*100)*windCalc.z;
-		//
-		//
-		////float dotvw = 1-dot(normalize(wind),vel) *0.5 + 0.5;
-
-
-
-	
 
 		WvertVel[truID] = vel;
-		WvertPos[truID] = lastPos + vel*_SingularityPosANDdt.w*60; //= vel;
-
+		WvertPos[truID] = lastPos; //= vel;
 
 
 
