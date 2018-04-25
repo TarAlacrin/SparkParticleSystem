@@ -23,7 +23,7 @@ public class TakeAShot : MonoBehaviour
 				i++;
 				exists = System.IO.File.Exists(Application.dataPath +"\\goodScreen" + i +".jpg");
 			}
-			Application.CaptureScreenshot(Application.dataPath +"\\goodScreen" + i +".jpg", renderMultiplier);
+			ScreenCapture.CaptureScreenshot(Application.dataPath +"\\goodScreen" + i +".jpg", renderMultiplier);
 			Debug.Log("TookSpecialScreenShot #" + i);
 		}
 	}
