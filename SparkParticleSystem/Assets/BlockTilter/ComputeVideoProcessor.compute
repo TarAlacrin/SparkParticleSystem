@@ -1,0 +1,28 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSPopulateGoalsFromTex
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+
+float3 _Time_DT_Spd;
+
+int2 _Dimensions;
+
+
+Texture2D<float4> RscreenTex;
+RWStructuredBuffer<float4> WblckGoals;
+
+
+
+
+
+[numthreads(1,1,1)]
+void CSPopulateGoalsFromTex(uint3 id : SV_DispatchThreadID)
+{
+
+
+
+}
+
+
+
