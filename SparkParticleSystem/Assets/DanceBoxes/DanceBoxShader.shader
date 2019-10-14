@@ -78,12 +78,11 @@ Shader "SDnBshades/DanceBox"
 			float3 right = normalize( cross(up, _Data[IN[0].id].normal));
 			float4 binormal = mul(UNITY_MATRIX_VP, float4(up, 0)*0.5f*_Size);
 			float4 tangent = mul(UNITY_MATRIX_VP, float4(right, 0)*0.5f*_Size);
-			float4 nrmal = mul(UNITY_MATRIX_VP, float4(_Data[IN[0].id].normal, 0)*0.5f*_Size);
 			
-			OUT.posi = IN[0].pos + nrmal + tangent - binormal; OUT.uv = float2(1,0); outStream.Append(OUT);
-			OUT.posi = IN[0].pos + nrmal + tangent + binormal; OUT.uv = float2(1, 1); outStream.Append(OUT);
-			OUT.posi = IN[0].pos + nrmal - tangent - binormal; OUT.uv = float2(0, 0); outStream.Append(OUT);
-			OUT.posi = IN[0].pos + nrmal - tangent + binormal; OUT.uv = float2(0, 1); outStream.Append(OUT);
+			OUT.posi = IN[0].pos + tangent - binormal; OUT.uv = float2(1,0); outStream.Append(OUT);
+			OUT.posi = IN[0].pos + tangent + binormal; OUT.uv = float2(1, 1); outStream.Append(OUT);
+			OUT.posi = IN[0].pos - tangent - binormal; OUT.uv = float2(0, 0); outStream.Append(OUT);
+			OUT.posi = IN[0].pos - tangent + binormal; OUT.uv = float2(0, 1); outStream.Append(OUT);
 
 			outStream.RestartStrip();
 		}

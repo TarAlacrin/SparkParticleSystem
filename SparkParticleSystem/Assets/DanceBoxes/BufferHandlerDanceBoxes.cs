@@ -7,10 +7,13 @@ public class BufferHandlerDanceBoxes : MonoBehaviour
 	public const int READ = 1;
 	public const int WRITE = 0;
 
-	ComputeBuffer[] quadDataBuffers = new ComputeBuffer[2];
-	ComputeBuffer quadDataArgBuffer;
+	ComputeBuffer[] cubeAgeBuffer = new ComputeBuffer[2];
+	ComputeBuffer[] quadDataBuffer = new ComputeBuffer[2];
+	ComputeBuffer quadArgBuffer;
 
-	public ComputeShader cShade;
+
+	public ComputeShader cubeAgeFinalProcess;
+	public ComputeShader cubeAgeToQuadDataShader;
 	public Material material;
 	
 
@@ -24,12 +27,12 @@ public class BufferHandlerDanceBoxes : MonoBehaviour
 		}
 	}
 
-	public const string _SimKernelName = "CSMain"; //"CSBlockMain";//"CSTwirl";
-	public int simkernal
+	public const string _ca2qdKernelName = "CSMain"; //"CSBlockMain";//"CSTwirl";
+	public int ca2qdkernal
 	{
 		get
 		{
-			return cShade.FindKernel(_SimKernelName);
+			return cubeAgeToQuadDataShader.FindKernel(_ca2qdKernelName);
 		}
 	}
 
@@ -45,20 +48,41 @@ public class BufferHandlerDanceBoxes : MonoBehaviour
 	// Start is called before the first frame update
 	void Start()
     {
-		quadDataBuffers[READ] = new ComputeBuffer(cubecount * 6, 7 * sizeof(float), ComputeBufferType.Append);
-		quadDataBuffers[WRITE] = new ComputeBuffer(cubecount * 6, 7 * sizeof(float), ComputeBufferType.Append);
+		quadDataBuffer[READ] = new ComputeBuffer(cubecount * 6, 7 * sizeof(float), ComputeBufferType.Append);
+		quadDataBuffer[WRITE] = new ComputeBuffer(cubecount * 6, 7 * sizeof(float), ComputeBufferType.Append);
 
-		quadDataBuffers[WRITE].SetCounterValue(0);
-		quadDataArgBuffer = new ComputeBuffer(4, sizeof(int), ComputeBufferType.IndirectArguments);
-		cShade.SetBuffer(simkernal, "WQuadPositionAndAgeBuffer", quadDataBuffers[WRITE]);
-		cShade.Dispatch(simkernal, count, count, count);
-		Swap(quadDataBuffers);
+		cubeAgeBuffer[READ] = new ComputeBuffer(cubecount, sizeof(float), ComputeBufferType.Default);
+		cubeAgeBuffer[WRITE] = new ComputeBuffer(cubecount, sizeof(float), ComputeBufferType.Default);
+
+
+		quadArgBuffer = new ComputeBuffer(4, sizeof(int), ComputeBufferType.IndirectArguments);
+
+
+		GetCubeAge();
+		CubeAgeToQuad();
 		//cShade.SetBuffer(simkernal, "WQuadPositionAndAgeBuffer", quadDataBuffers[WRITE]);
 		//cShade.Dispatch(simkernal, count, count, count);
 
 		//int[] quadargs = new int[] { 0, 1, 0, 0 };
 		//quadDataArgBuffer.SetData(quadargs);
+	}
 
+
+	void GetCubeAge()
+	{
+		cubeAgeFinalProcess.SetBuffer(cubeAgeBuffer[WRITE], )
+		Swap(cubeAgeBuffer);
+	}
+
+
+	void CubeAgeToQuad()
+	{
+		cubeAgeToQuadDataShader.SetBuffer(ca2qdkernal, "RCubeAges", cubeAgeBuffer[READ]);
+		cubeAgeToQuadDataShader.SetBuffer(ca2qdkernal, "WQuadPositionAndAgeBuffer", quadDataBuffer[WRITE]);
+		cubeAgeToQuadDataShader.SetInt("dimensionSize", count);
+		quadDataBuffer[WRITE].SetCounterValue(0);
+		cubeAgeToQuadDataShader.Dispatch(ca2qdkernal, count, count, count);
+		Swap(quadDataBuffer);
 	}
 
 	// Update is called once per frame
@@ -69,19 +93,19 @@ public class BufferHandlerDanceBoxes : MonoBehaviour
 
 	private void OnRenderObject()
 	{
-		int[] quadargs = GetArgs(quadDataBuffers[READ], quadDataArgBuffer);
+		int[] quadargs = GetArgs(quadDataBuffer[READ], quadArgBuffer);
 		Debug.Log("Quadargs: " + quadargs[0] + ", " + quadargs[1] + ", " + quadargs[2] + ", " + quadargs[3]);
 		material.SetPass(0); 
-		material.SetBuffer("_Data", quadDataBuffers[READ]);
-		Graphics.DrawProceduralIndirect(MeshTopology.Points, quadDataArgBuffer, 0);
+		material.SetBuffer("_Data", quadDataBuffer[READ]);
+		Graphics.DrawProceduralIndirect(MeshTopology.Points, quadArgBuffer, 0);
 	}
 
 	private void OnDisable()
 	{
 		Debug.Log("DESTROYED!");
-		quadDataBuffers[READ].Release();
-		quadDataBuffers[WRITE].Release();
-		quadDataArgBuffer.Release();
+		quadDataBuffer[READ].Release();
+		quadDataBuffer[WRITE].Release();
+		quadArgBuffer.Release();
 	}
 
 

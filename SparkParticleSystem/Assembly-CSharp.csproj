@@ -139,6 +139,7 @@
     <None Include="Assets\DanceBoxes\DanceBoxShader.shader" />
     <None Include="Assets\NoiseShader\3dsimpjordNormalizedAnim.shader" />
     <None Include="Assets\PostProcessing\Resources\Shaders\Tonemapping.cginc" />
+    <None Include="Assets\DanceBoxes\CubeAgeProducer.compute" />
     <None Include="Assets\__SDnBody\SDnBSparkLight.shader" />
     <None Include="Assets\PostProcessing\Editor Resources\Monitors\HistogramCompute.compute" />
     <None Include="Assets\PostProcessing\Resources\Shaders\Uber.shader" />

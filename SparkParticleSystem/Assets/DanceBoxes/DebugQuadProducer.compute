@@ -1,11 +1,15 @@
 ﻿// Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel CSMain
 
+
+int dimensionSize;
 struct QuadOutputData {
 	float3 position;
 	float3 normal;
 	float age;
 };
+
+RWStructuredBuffer<float> RCubeAges;
 
 AppendStructuredBuffer<QuadOutputData> WQuadPositionAndAgeBuffer;
 
@@ -18,18 +22,16 @@ float mod(float x, float m)
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
 	QuadOutputData output;
-	output.position = id;
 	output.age = cos(id.x+id.y+id.z);
 	output.normal = float3(0,1,0);
+	output.position = id+ output.normal*0.5f;
 
-	if (mod(id.x, 2) == 0 && mod(id.y, 2) && mod(id.z, 2))
+	/*if (mod(id.x, 2) == 0 && mod(id.y, 2) && mod(id.z, 2))
 	{
 		WQuadPositionAndAgeBuffer.Append(output);
 		output.normal = float3(1, 0, 0);
 		WQuadPositionAndAgeBuffer.Append(output);
 		output.normal = float3(0, 0, -1);
 		WQuadPositionAndAgeBuffer.Append(output);
-
-
-	}
+	}*/
 }
