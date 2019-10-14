@@ -1,0 +1,35 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+struct QuadOutputData {
+	float3 position;
+	float3 normal;
+	float age;
+};
+
+AppendStructuredBuffer<QuadOutputData> WQuadPositionAndAgeBuffer;
+
+float mod(float x, float m)
+{
+	return x - m * floor(x / m);
+}
+
+[numthreads(1,1,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+	QuadOutputData output;
+	output.position = id;
+	output.age = cos(id.x+id.y+id.z);
+	output.normal = float3(0,1,0);
+
+	if (mod(id.x, 2) == 0 && mod(id.y, 2) && mod(id.z, 2))
+	{
+		WQuadPositionAndAgeBuffer.Append(output);
+		output.normal = float3(1, 0, 0);
+		WQuadPositionAndAgeBuffer.Append(output);
+		output.normal = float3(0, 0, -1);
+		WQuadPositionAndAgeBuffer.Append(output);
+
+
+	}
+}
