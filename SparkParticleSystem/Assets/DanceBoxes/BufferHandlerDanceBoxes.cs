@@ -12,7 +12,7 @@ public class BufferHandlerDanceBoxes : MonoBehaviour
 	ComputeBuffer quadArgBuffer;
 
 
-	public ComputeShader cubeAgeFinalProcess;
+	//public ComputeShader cubeAgeFinalProcess;
 	public ComputeShader cubeAgeToQuadDataShader;
 	public Material material;
 	
@@ -48,31 +48,26 @@ public class BufferHandlerDanceBoxes : MonoBehaviour
 	// Start is called before the first frame update
 	void Start()
     {
-		quadDataBuffer[READ] = new ComputeBuffer(cubecount * 6, 7 * sizeof(float), ComputeBufferType.Append);
-		quadDataBuffer[WRITE] = new ComputeBuffer(cubecount * 6, 7 * sizeof(float), ComputeBufferType.Append);
+		//quadDataBuffer[READ] = new ComputeBuffer(cubecount * 6, 7 * sizeof(float), ComputeBufferType.Append);
+		//quadDataBuffer[WRITE] = new ComputeBuffer(cubecount * 6, 7 * sizeof(float), ComputeBufferType.Append);
 
-		cubeAgeBuffer[READ] = new ComputeBuffer(cubecount, sizeof(float), ComputeBufferType.Default);
-		cubeAgeBuffer[WRITE] = new ComputeBuffer(cubecount, sizeof(float), ComputeBufferType.Default);
-
-
-		quadArgBuffer = new ComputeBuffer(4, sizeof(int), ComputeBufferType.IndirectArguments);
+		//cubeAgeBuffer[READ] = new ComputeBuffer(cubecount, sizeof(float), ComputeBufferType.Default);
+		//cubeAgeBuffer[WRITE] = new ComputeBuffer(cubecount, sizeof(float), ComputeBufferType.Default);
 
 
-		GetCubeAge();
-		CubeAgeToQuad();
-		//cShade.SetBuffer(simkernal, "WQuadPositionAndAgeBuffer", quadDataBuffers[WRITE]);
-		//cShade.Dispatch(simkernal, count, count, count);
+		//quadArgBuffer = new ComputeBuffer(4, sizeof(int), ComputeBufferType.IndirectArguments);
 
-		//int[] quadargs = new int[] { 0, 1, 0, 0 };
-		//quadDataArgBuffer.SetData(quadargs);
+
+		//GetCubeAge();
+		//CubeAgeToQuad();
 	}
 
 
-	void GetCubeAge()
-	{
-		cubeAgeFinalProcess.SetBuffer(cubeAgeBuffer[WRITE], )
-		Swap(cubeAgeBuffer);
-	}
+	//void ()
+	//{GetCubeAge
+		//cubeAgeFinalProcess.SetBuffer(cubeAgeBuffer[WRITE],)
+		//Swap(cubeAgeBuffer);
+	//}
 
 
 	void CubeAgeToQuad()

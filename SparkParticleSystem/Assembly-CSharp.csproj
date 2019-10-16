@@ -66,6 +66,13 @@
     <Compile Include="Assets\__SDnBody\ParticleCountItterator.cs" />
     <Compile Include="Assets\BlockTilter\BufferHandlerBlockWall.cs" />
     <Compile Include="Assets\DanceBoxes\BufferHandlerDanceBoxes.cs" />
+    <Compile Include="Assets\DanceBoxes\BufferTools.cs" />
+    <Compile Include="Assets\DanceBoxes\DanceBoxManager.cs" />
+    <Compile Include="Assets\DanceBoxes\DebugVoxelAgeGenerator.cs" />
+    <Compile Include="Assets\DanceBoxes\IWantQuadData.cs" />
+    <Compile Include="Assets\DanceBoxes\IWantVoxelAges.cs" />
+    <Compile Include="Assets\DanceBoxes\QuadDataToRenderer.cs" />
+    <Compile Include="Assets\DanceBoxes\VoxelAgesToQuadData.cs" />
     <Compile Include="Assets\DontDestroyOnLoad.cs" />
     <Compile Include="Assets\Extensions.cs" />
     <Compile Include="Assets\HoldEscapeToQuit.cs" />
@@ -150,6 +157,7 @@
     <None Include="Assets\PostProcessing\Resources\Shaders\FXAA3.cginc" />
     <None Include="Assets\PostProcessing\Resources\Shaders\MotionBlur.shader" />
     <None Include="Assets\PostProcessing\Resources\Shaders\AmbientOcclusion.shader" />
+    <None Include="Assets\DanceBoxes\VoxelAgeToQuadCompute.compute" />
     <None Include="Assets\PostProcessing\Resources\Bluenoise64\LICENSE.txt" />
     <None Include="Assets\Turbulence-Library\Readme.txt" />
     <None Include="Assets\PostProcessing\Resources\Shaders\BuiltinDebugViews.shader" />

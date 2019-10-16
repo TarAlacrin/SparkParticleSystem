@@ -3,12 +3,31 @@
 
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
-RWTexture2D<float4> Result;
+RWStructuredBuffer<float> WVoxelAgeBuffer;
+uint4 _Dimensions;
+ 
+float mod(float x, float m)
+{
+	return x - m * floor(x / m);
+}
 
 [numthreads(1,1,1)]
-void CSMain (uint3 id : SV_DispatchThreadID)
+void CSMain(uint3 id : SV_DispatchThreadID)
 {
-    // TODO: insert actual code here!
+	uint index = id.x + id.y*(_Dimensions.x) + id.z*_Dimensions.x*_Dimensions.y;
 
-    Result[id.x] = 10;
+	//if(mod(index, 4)==0)
+	//	_OutputVoxelAges[index] = 5;
+//	else if (mod(index, 2) == 0)
+	//	_OutputVoxelAges[index] = 10;
+	//	else
+	//	_OutputVoxelAges[index] = 0;
+
+	//if(mod(id.x, 2) == 0 || mod(id.y, 2) == 0 || mod(id.z, 2) == 0)
+	//	_OutputVoxelAges[index] = 0;
+	//else 
+	WVoxelAgeBuffer[index] = 100;
+
+	// saturate(1-ceil(length(id.xyz - _Dimensions.xyz*0.5)*0.02))*10;
 }
+  

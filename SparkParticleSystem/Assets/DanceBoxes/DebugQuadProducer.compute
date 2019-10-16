@@ -2,7 +2,7 @@
 #pragma kernel CSMain
 
 
-int dimensionSize;
+int3 _Dimensions;
 struct QuadOutputData {
 	float3 position;
 	float3 normal;
@@ -10,7 +10,6 @@ struct QuadOutputData {
 };
 
 RWStructuredBuffer<float> RCubeAges;
-
 AppendStructuredBuffer<QuadOutputData> WQuadPositionAndAgeBuffer;
 
 float mod(float x, float m)
@@ -26,12 +25,12 @@ void CSMain (uint3 id : SV_DispatchThreadID)
 	output.normal = float3(0,1,0);
 	output.position = id+ output.normal*0.5f;
 
-	/*if (mod(id.x, 2) == 0 && mod(id.y, 2) && mod(id.z, 2))
+	if (mod(id.x, 2) == 0 && mod(id.y, 2) && mod(id.z, 2))
 	{
 		WQuadPositionAndAgeBuffer.Append(output);
 		output.normal = float3(1, 0, 0);
 		WQuadPositionAndAgeBuffer.Append(output);
 		output.normal = float3(0, 0, -1);
 		WQuadPositionAndAgeBuffer.Append(output);
-	}*/
+	}
 }

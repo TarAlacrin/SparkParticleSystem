@@ -73,7 +73,7 @@ Shader "SDnBshades/DanceBox"
 		void geom(point v2g IN[1], inout TriangleStream<g2f> outStream)
 		{
 			g2f OUT;
-			OUT.colo = IN[0].col;
+			OUT.colo = _Data[IN[0].id].age; //float4( abs(_Data[IN[0].id].normal),1)*(0.1*cos(IN[0].id*0.27)+0.9); //IN[0].col;
 			float3 up = normalize(lerp(float3(0, 0, 1), float3(0, 1, 0), saturate(ceil(length(abs(_Data[IN[0].id].normal) - float3(0, 1, 0)) )) ));
 			float3 right = normalize( cross(up, _Data[IN[0].id].normal));
 			float4 binormal = mul(UNITY_MATRIX_VP, float4(up, 0)*0.5f*_Size);

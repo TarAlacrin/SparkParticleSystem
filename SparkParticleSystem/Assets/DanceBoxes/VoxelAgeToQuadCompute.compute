@@ -1,0 +1,64 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+uint4 _Dimensions;
+struct QuadOutputData {
+	float3 position;
+	float3 normal;
+	float age;
+};
+
+StructuredBuffer<float> RCubeAges;
+AppendStructuredBuffer<QuadOutputData> WQuadPositionAndAgeBuffer;
+
+float mod(float x, float m)
+{
+	return x - m * floor(x / m);
+}
+
+uint Index(uint3 coordid)
+{
+	return coordid.x + coordid.y*_Dimensions.x + coordid.z*_Dimensions.x*_Dimensions.y;
+}
+
+void OutputQuad(float3 normal, uint3 coord, float age)
+{
+	QuadOutputData output;
+	output.age = age;
+	output.normal = normal;
+	output.position = coord + output.normal*0.5f;
+	WQuadPositionAndAgeBuffer.Append(output);
+}
+
+
+
+[numthreads(1,1,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+	uint index = Index(id);
+	float age = RCubeAges[index];
+
+	//if (age > 0)
+	{
+		 
+		OutputQuad(float3(-1, 0, 0), id, age);
+		OutputQuad(float3(1, 0, 0), id, age);
+		OutputQuad(float3(0, 1, 0), id, age);
+		OutputQuad(float3(0, -1, 0), id, age);
+
+		/*
+		if (id.x == 0 || RCubeAges[Index(id - uint3(1, 0, 0))] <= 0)
+			OutputQuad(float3(-1,0,0), id, age);
+		if (id.y == 0 || RCubeAges[Index(id - uint3(0, 1, 0))] <= 0)
+			OutputQuad(float3(0, -1, 0), id, age);
+		if (id.z == 0 || RCubeAges[Index(id - uint3(0, 0, 1))] <= 0)
+			OutputQuad(float3(0, 0, -1), id, age);
+
+		if (id.x == _Dimensions.x - 1 || RCubeAges[Index(id + uint3(1, 0, 0))] <= 0)
+			OutputQuad(float3(1, 0, 0), id, age);
+		if (id.y == _Dimensions.y - 1 || RCubeAges[Index(id + uint3(0, 1, 0))] <= 0)
+			OutputQuad(float3(0, 1, 0), id, age);
+		if (id.z == _Dimensions.z - 1 || RCubeAges[Index(id + uint3(0, 0, 1))] <= 0)
+			OutputQuad(float3(0, 0, 1), id, age); */
+	}
+} 
+
