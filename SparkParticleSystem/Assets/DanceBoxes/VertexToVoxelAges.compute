@@ -54,6 +54,6 @@ void CSSecond(uint3 id : SV_DispatchThreadID)
     //float sphere = saturate(_Dimensions.x * 0.4 - length(coords - _Dimensions.xyz * 0.5));
     //WVoxelAgeBuffer[index] = isinrange * sphere;
 
-    //WVoxelAgeBuffer[index] = isinrange * sphere;
+    //WVoxelAgeBuffer[ind ex] = isinrange * sphere;
 }
 
