@@ -1,4 +1,4 @@
-﻿// Each #kernel tells which function to compile; you can have many kernels
+﻿// Each #kernel tells which fu nction to compile; you can have many kernels
 #pragma kernel CSMain
 
 RWStructuredBuffer<float> WVoxelAgeBuffer;
