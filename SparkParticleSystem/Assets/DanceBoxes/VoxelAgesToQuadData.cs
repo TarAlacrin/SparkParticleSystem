@@ -44,14 +44,16 @@ namespace DanceBoxes
 		{
 			if (debug)
 			{
-				BufferTools.DebugCompute(voxelAgeStatesREAD, "voxel Age state READ - ", DanceBoxManager.inst.singleDimensionCount);
+				//BufferTools.DebugCompute<float>(voxelAgeStatesREAD, "voxel Age state READ - ", DanceBoxManager.inst.singleDimensionCount);
 			}
 
 			cubeAgeToQuadDataShader.SetVector("_Dimensions", DanceBoxManager.inst.voxelDimensions4);
 			cubeAgeToQuadDataShader.SetBuffer(ca2qdkernal, "RCubeAges", voxelAgeStatesREAD);
 			cubeAgeToQuadDataShader.SetBuffer(ca2qdkernal, "WQuadPositionAndAgeBuffer", quadDataBuffer[WRITE]);
 			quadDataBuffer[WRITE].SetCounterValue(0);//erases data from previous frame
-			cubeAgeToQuadDataShader.Dispatch(ca2qdkernal, DanceBoxManager.inst.voxelDimX, DanceBoxManager.inst.voxelDimY, DanceBoxManager.inst.voxelDimZ);
+			cubeAgeToQuadDataShader.Dispatch(ca2qdkernal, DanceBoxManager.inst.totalVoxels, 1,1);
+
+			//cubeAgeToQuadDataShader.Dispatch(ca2qdkernal, DanceBoxManager.inst.voxelDimX, DanceBoxManager.inst.voxelDimY, DanceBoxManager.inst.voxelDimZ);
 			quadDataOutput.GiveQuadData(quadDataBuffer);
 		}
 
@@ -65,8 +67,8 @@ namespace DanceBoxes
 
 		private void OnDisable()
 		{
-			quadDataBuffer[READ].Release();
-			quadDataBuffer[WRITE].Release();
+			quadDataBuffer[READ].Dispose();
+			quadDataBuffer[WRITE].Dispose();
 		}
 
 

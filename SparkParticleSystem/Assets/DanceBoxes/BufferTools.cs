@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+ 
 public static class BufferTools 
 {
 
@@ -25,10 +25,10 @@ public static class BufferTools
 	}
 
 
-	public static void DebugCompute(ComputeBuffer computeToDebug, string name, int dims)
+	public static void DebugCompute<T>(ComputeBuffer computeToDebug, string name, int dims)
 	{
-		float[] data = new float[dims* dims* dims];
-
+		T[] data = new T[dims* dims* dims];
+		 
 		computeToDebug.GetData(data);
 
 		string todebug = name + "ARRY: " + " @f:";
@@ -42,7 +42,7 @@ public static class BufferTools
 				for (int i = 0; i < dims; i++)
 				{
 					int ind = i + j * dims + k * dims * dims;
-					todebug += data[ind] + ", ";
+					todebug += data[ind].ToString() + ", ";
 				}
 			}
 		}

@@ -36,8 +36,8 @@ namespace DanceBoxes
 		}
 		private void OnDisable()
 		{
-			voxelAgeBuffer[READ].Release();
-			voxelAgeBuffer[WRITE].Release();
+			voxelAgeBuffer[READ].Dispose();
+			voxelAgeBuffer[WRITE].Dispose();
 		}
 
 		void Update()
@@ -47,7 +47,8 @@ namespace DanceBoxes
 
 			if (debug)
 			{
-				BufferTools.DebugCompute(voxelAgeBuffer[READ], "output voxel ages READ", DanceBoxManager.inst.singleDimensionCount);
+				Debug.Log("Running");
+				//BufferTools.DebugCompute<float>(voxelAgeBuffer[READ], "output voxel ages READ", DanceBoxManager.inst.singleDimensionCount);
 			}
 
 			voxelAgeRecipient.GiveSwappedVoxelAgeBuffer(voxelAgeBuffer[READ]);

@@ -1,0 +1,32 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+RWStructuredBuffer<float> WVoxelAgeBuffer;
+float4 _Dimensions;
+ 
+float mod(float x, float m)
+{
+    return x - m * floor(x / m);
+}
+
+uint Index(uint3 coordid)
+{
+    return coordid.x + coordid.y * _Dimensions.x + coordid.z * _Dimensions.x * _Dimensions.y;
+}
+
+int3 Coord(float index)
+{
+    return int3(mod(index, _Dimensions.x), mod(floor(index / _Dimensions.x), _Dimensions.y), floor(index / (_Dimensions.x * _Dimensions.y)));
+}
+
+
+[numthreads(1, 1, 1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    uint index = Index(id);
+    int3 coords = Coord(index);
+    float isinrange = cos(coords.x * 0.5 + coords.y) * saturate(0.5 + cos(coords.z * 0.6 + coords.x * 0.2)) * 10;
+    float sphere = saturate(_Dimensions.x * 0.4 - length(coords - _Dimensions.xyz * 0.5));
+    WVoxelAgeBuffer[index] = isinrange * sphere;
+}
+  

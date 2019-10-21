@@ -27,15 +27,15 @@ namespace DanceBoxes
 		private void OnRenderObject()
 		{
 			int[] quadargs = BufferTools.GetArgs(quadDataBuffer[READ], quadArgBuffer);
-			Debug.Log("Quadargs: " + quadargs[0] + ", " + quadargs[1] + ", " + quadargs[2] + ", " + quadargs[3]);
 			material.SetPass(0);
 			material.SetBuffer("_Data", quadDataBuffer[READ]);
+
 			Graphics.DrawProceduralIndirect(MeshTopology.Points, quadArgBuffer, 0);
 		}
 
 		private void OnDisable()
 		{
-			quadArgBuffer.Release();
+			quadArgBuffer.Dispose();
 		}
 	}
 }

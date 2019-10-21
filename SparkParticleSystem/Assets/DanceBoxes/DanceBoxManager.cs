@@ -53,7 +53,7 @@ namespace DanceBoxes
 
 		private void Awake()
 		{
-			Debug.Log("sizeOfVOXEL:" + sizeOfVoxelData + " SIZE OF QUAD?:" + sizeOfQuadData + " sizeofflot: " + sizeof(float));
+			//Debug.Log("sizeOfVOXEL:" + sizeOfVoxelData + " SIZE OF QUAD?:" + sizeOfQuadData + " sizeofflot: " + sizeof(float));
 			DanceBoxManager.inst = this;
 		}
 
@@ -66,13 +66,27 @@ namespace DanceBoxes
 		Vector3 position;
 		Vector3 normal;
 		float age;
-	}
 
+		public override string ToString()
+		{
+			return "" + position;
+		} 
+	}
 
 	struct VoxelData
 	{
 		float age;
 	}
 
+	struct TriangleData
+	{
+		int p1;
+		int p2;
+		int p3;
+		public TriangleData(int i1, int i2, int i3)
+		{
+			p1 = i1; p2 = i2; p3 = i3;
+		}
+	}
 }
 
