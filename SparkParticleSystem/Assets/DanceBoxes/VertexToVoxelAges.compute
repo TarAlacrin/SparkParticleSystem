@@ -1,5 +1,16 @@
 ﻿// Each #kernel tells which function to compile; you can have many kernels
+
+#include "Assets/DanceBoxes/ComputeIncludes.cginc"
+#include "Assets/DanceBoxes/ComputeTriangleIncludes.cginc"
+
 #pragma kernel CSMain
+
+struct FullTriangleData
+{
+	float3 p1;
+	float3 p2;
+	float3 p3;
+};
 
 struct TriangleData
 {
@@ -8,37 +19,109 @@ struct TriangleData
     int p3;
 };
 
+struct IntersectionData
+{
+	uint voxelIndex;
+	uint triIndex;
+};
+
 StructuredBuffer<TriangleData> RTriangleVertexes;
 StructuredBuffer<float3> RVertexPositions;
-RWStructuredBuffer<float> WVoxelAgeBuffer;
+AppendStructuredBuffer<IntersectionData> WAIntersections;
+
 float4 _Dimensions;
- 
-float mod(float x, float m)
-{
-    return x - m * floor(x / m);
-}
 
 uint Index(uint3 coordid)
 {
-    return coordid.x + coordid.y * _Dimensions.x + coordid.z * _Dimensions.x * _Dimensions.y;
+	return coordid.x + coordid.y * _Dimensions.x + coordid.z * _Dimensions.x * _Dimensions.y;
 }
 
 int3 Coord(float index)
 {
-    return int3(mod(index, _Dimensions.x), mod(floor(index / _Dimensions.x), _Dimensions.y), floor(index / (_Dimensions.x * _Dimensions.y)));
+	return int3(mod(index, _Dimensions.x), mod(floor(index / _Dimensions.x), _Dimensions.y), floor(index / (_Dimensions.x * _Dimensions.y)));
 }
 
 
-[numthreads(1, 1, 1)]
-void CSMain(uint3 id : SV_DispatchThreadID)
+FullTriangleData GetTriangleFromIndex(uint id)
 {
-    uint index = Index(id);
-    int3 coords = Coord(index);
-    //float isinrange = cos(coords.x * 0.5 + coords.y) * saturate(0.5 + cos(coords.z * 0.6 + coords.x * 0.2)) * 10;
-    //float sphere = saturate(_Dimensions.x * 0.4 - length(coords - _Dimensions.xyz * 0.5));
-    //WVoxelAgeBuffer[index] = isinrange * sphere;
+	FullTriangleData tri;
+	TriangleData trindex = RTriangleVertexes[id];
+	tri.p1 = RVertexPositions[trindex.p1];
+	tri.p2 = RVertexPositions[trindex.p2];
+	tri.p3 = RVertexPositions[trindex.p3];
+	return tri;
+}
 
-    //WVoxelAgeBuffer[index] = isinrange * sphere;
-    
+void CheckIntersect(FullTriangleData tri, uint3 vxlCoords, uint vxlIndex, uint triIndex)
+{
+	//int intersection = TriangleIntersectsUnitSquare(tri.p1 - vxlCoords, tri.p2 - vxlCoords, tri.p3 - vxlCoords);
+
+	if (mod(vxlCoords.x, 2) == 1 && mod(vxlCoords.y, 2) == 1 && mod(vxlCoords.z, 2) == 0 && mod(triIndex, 2) ==0 )
+	{
+		IntersectionData intersectdat;
+		intersectdat.voxelIndex = vxlIndex;
+		intersectdat.triIndex = triIndex;
+		WAIntersections.Append(intersectdat);
+	}
+/*
+	if (intersection)
+	{
+		IntersectionData intersectdat;
+		intersectdat.voxelIndex = vxlIndex;
+		intersectdat.triIndex = triIndex;
+		WAIntersections.Append(intersectdat);
+	}*/
+}
+
+
+//this gets run once for each triangle in the system
+[numthreads(1, 1, 1)]
+void CSMain(uint3 ind : SV_DispatchThreadID)
+{
+    //uint index = Index(ind);
+    //int3 coords = Coord(ind.x);
+	FullTriangleData tri = GetTriangleFromIndex(ind.x);
+	float3 minp = min(min(tri.p1, tri.p2), tri.p3);
+	float3 maxp = max(max(tri.p1, tri.p2), tri.p3);
+	maxp = min(ceil(maxp), _Dimensions.xyz);
+	minp = max(floor(minp), float3(0,0,0));
+
+	for (uint i = (uint)minp.x; i < (uint)maxp.x; i++)
+	{
+		for (uint j = (uint)minp.x; j < (uint)maxp.x; j++)
+		{
+			for (uint k = (uint)minp.x; k < (uint)maxp.x; k++)
+			{
+				uint3 ijk = uint3(i, j, k);
+				uint voxelIndex = Index(ijk);
+				CheckIntersect(tri, ijk, voxelIndex, ind.x);
+			}
+		}
+	}
 }
   
+
+
+#pragma kernel CSSecond
+
+StructuredBuffer<IntersectionData> RAIntersections;
+int IntersectionCount;
+
+RWStructuredBuffer<float> WVoxelAgeBuffer;
+
+//runs once for each point on the x,y grid
+[numthreads(1,1,1)]
+void CSSecond(uint3 id : SV_DispatchThreadID)
+{
+	uint initialIndex = Index(id);
+	int3 coords = Coord(initialIndex);
+
+	for (uint k = 0; k < (uint)_Dimensions.z; k++)
+	{
+		uint3 voxCoords = uint3(coords.x, coords.y, k);
+		uint voxIndex = Index(voxCoords);
+
+		WVoxelAgeBuffer[voxIndex] = IntersectionCount;
+	}
+
+}

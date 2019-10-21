@@ -49,6 +49,11 @@ namespace DanceBoxes
 				return System.Runtime.InteropServices.Marshal.SizeOf<VoxelData>();
 			}
 		}
+		public int sizeOfIntersectionData{
+			get{
+				return System.Runtime.InteropServices.Marshal.SizeOf<IntersectionData>();
+			}
+		}
 
 
 		private void Awake()
@@ -87,6 +92,12 @@ namespace DanceBoxes
 		{
 			p1 = i1; p2 = i2; p3 = i3;
 		}
+	}
+
+	struct IntersectionData
+	{
+		int voxelID;
+		int triangleID;
 	}
 }
 
