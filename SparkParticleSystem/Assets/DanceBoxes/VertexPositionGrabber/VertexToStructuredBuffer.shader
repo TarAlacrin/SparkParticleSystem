@@ -18,8 +18,7 @@ CGPROGRAM
             #pragma fragment frag
             #pragma target 5.0
 			 
-            uniform AppendStructuredBuffer<float3> appendBuffer : register(u1);
-
+            uniform AppendStructuredBuffer<float4> appendBuffer : register(u1);
 
 			struct APPDATA
 			{
@@ -37,7 +36,7 @@ CGPROGRAM
 			v2f vert (APPDATA IN)
             {
 				v2f vs;
-				appendBuffer.Append(mul(unity_ObjectToWorld, IN.vertex).xyz);
+				appendBuffer.Append(float4(mul(unity_ObjectToWorld, IN.vertex).xyz, IN.id));
 
 				vs.vertex = UnityObjectToClipPos(IN.vertex);
 				vs.uv = IN.uv;

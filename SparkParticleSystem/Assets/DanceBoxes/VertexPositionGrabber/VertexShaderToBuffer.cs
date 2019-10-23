@@ -16,7 +16,7 @@ namespace DanceBoxes
 		ComputeBuffer[] compute_buffer = new ComputeBuffer[2];
 		ComputeBuffer argBuffer;
 		Mesh mesh;
-		Vector3[] initData;
+		Vector4[] initData;
 
 		public GameObject vertexPositionRecieverObject;
 		IWantVertexPositions vertexReciever;
@@ -28,10 +28,17 @@ namespace DanceBoxes
 		{
 			vertexReciever = vertexPositionRecieverObject.GetComponent<IWantVertexPositions>();
 			mesh = this.gameObject.GetComponent<MeshFilter>().sharedMesh;
-			initData = mesh.vertices;
+
+			initData = new Vector4[mesh.vertices.Length]; 
+			
+			for (int ind = 0; ind < initData.Length; ind ++)
+			{
+				initData[ind] = new Vector4(mesh.vertices[ind].x, mesh.vertices[ind].y, mesh.vertices[ind].z, ind);
+			}
+
 			vertCount = initData.Length;
-			compute_buffer[READ] = new ComputeBuffer(initData.Length, sizeof(float) * 3, ComputeBufferType.Append);
-			compute_buffer[WRITE] = new ComputeBuffer(initData.Length, sizeof(float) * 3, ComputeBufferType.Append);
+			compute_buffer[READ] = new ComputeBuffer(initData.Length, sizeof(float) * 4, ComputeBufferType.Append);
+			compute_buffer[WRITE] = new ComputeBuffer(initData.Length, sizeof(float) * 4, ComputeBufferType.Append);
 
 			compute_buffer[READ].SetData(initData);
 			compute_buffer[WRITE].SetData(initData);
@@ -43,7 +50,7 @@ namespace DanceBoxes
 			Debug.Log(initdatastr);
 
 
-			vertexReciever.PassVertexPositions(compute_buffer, mesh.triangles);
+			vertexReciever.PassVertexPositions(compute_buffer, mesh.triangles, mesh.vertices.Length);
 		}
 
 
@@ -65,43 +72,40 @@ namespace DanceBoxes
 
 		}
 
-		void DoDebug(bool actualDebug = false)
+		void DoDebug(int[] argdata)
 		{
-			int[] argdata = new int[] { 0, 1, 0, 0 };
-			argBuffer.SetData(argdata);
-			ComputeBuffer.CopyCount(compute_buffer[READ], argBuffer, 0);
-			argBuffer.GetData(argdata);
+			Vector4[] data = new Vector4[vertCount];
+			compute_buffer[READ].GetData(data);
+			string debg = "";
 
 
-			if (actualDebug)
+			debg += ("vertex count " + argdata[0]);
+			debg += "\t" + ("instance count " + argdata[1]);
+			debg += "\t" + ("start vertex " + argdata[2]);
+			debg += "\t" + ("start instance " + argdata[3]);
+			debg += "\n";
+			for (int i = 0; i < data.Length; i++)
 			{
-				Vector3[] data = new Vector3[vertCount];
-				compute_buffer[READ].GetData(data);
-				string debg = "";
-
-
-				debg += ("vertex count " + argdata[0]);
-				debg += "\t" + ("instance count " + argdata[1]);
-				debg += "\t" + ("start vertex " + argdata[2]);
-				debg += "\t" + ("start instance " + argdata[3]);
-				debg += "\n";
-				for (int i = 0; i < data.Length; i++)
-				{
+				if(data[i].w == 0)
 					debg += data[i];//"("+data[i].x + ","+ data[i].y+","+ data[i].z+") ";
-				}
-				Debug.LogError(debg);
-			}
+			}	
+			Debug.LogError(debg);
 		}
 
 		void OnRenderObject()
 		{
-			DisplayMAT.SetPass(0);
-			DisplayMAT.SetBuffer("_Data", compute_buffer[READ]);
-			DisplayMAT.SetColor("col", Color.blue);
-			DisplayMAT.SetFloat("size", 0.1f);
-			DoDebug(true);
+			//DisplayMAT.SetPass(0);
+			//DisplayMAT.SetBuffer("_Data", compute_buffer[READ]);
+			//DisplayMAT.SetColor("col", Color.blue);
+			//DisplayMAT.SetFloat("size", 0.1f);
 
-			Graphics.DrawProceduralIndirect(MeshTopology.Points, argBuffer, 0);
+			//int[] argdata = new int[] { 0, 1, 0, 0 };
+			//argBuffer.SetData(argdata);
+			//ComputeBuffer.CopyCount(compute_buffer[READ], argBuffer, 0);
+			//argBuffer.GetData(argdata);
+			//DoDebug(argdata);
+
+			//Graphics.DrawProceduralIndirect(MeshTopology.Points, argBuffer, 0);
 		}
 
 		void OnDisable()

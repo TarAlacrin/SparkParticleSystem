@@ -26,7 +26,7 @@ struct IntersectionData
 };
 
 StructuredBuffer<TriangleData> RTriangleVertexes;
-StructuredBuffer<float3> RVertexPositions;
+StructuredBuffer<float4> RVertexPositions;
 AppendStructuredBuffer<IntersectionData> WAIntersections;
 
 float4 _Dimensions;
@@ -46,31 +46,31 @@ FullTriangleData GetTriangleFromIndex(uint id)
 {
 	FullTriangleData tri;
 	TriangleData trindex = RTriangleVertexes[id];
-	tri.p1 = RVertexPositions[trindex.p1];
-	tri.p2 = RVertexPositions[trindex.p2];
-	tri.p3 = RVertexPositions[trindex.p3];
+	tri.p1 = RVertexPositions[trindex.p1].xyz;
+	tri.p2 = RVertexPositions[trindex.p2].xyz;
+	tri.p3 = RVertexPositions[trindex.p3].xyz;
 	return tri;
 }
 
 void CheckIntersect(FullTriangleData tri, uint3 vxlCoords, uint vxlIndex, uint triIndex)
 {
-	//int intersection = TriangleIntersectsUnitSquare(tri.p1 - vxlCoords, tri.p2 - vxlCoords, tri.p3 - vxlCoords);
 
-	if (mod(vxlCoords.x, 2) == 1 && mod(vxlCoords.y, 2) == 1 && mod(vxlCoords.z, 2) == 0 && mod(triIndex, 2) ==0 )
-	{
-		IntersectionData intersectdat;
-		intersectdat.voxelIndex = vxlIndex;
-		intersectdat.triIndex = triIndex;
-		WAIntersections.Append(intersectdat);
-	}
-/*
-	if (intersection)
+	/*if (mod(vxlCoords.x, 2) == 1 && mod(vxlCoords.y, 2) == 1 && mod(vxlCoords.z, 2) == 0 && mod(triIndex, 2) ==0 )
 	{
 		IntersectionData intersectdat;
 		intersectdat.voxelIndex = vxlIndex;
 		intersectdat.triIndex = triIndex;
 		WAIntersections.Append(intersectdat);
 	}*/
+	int intersection = TriangleIntersectsUnitSquare(tri.p1 - vxlCoords, tri.p2 - vxlCoords, tri.p3 - vxlCoords);
+	
+	if (intersection)
+	{
+		IntersectionData intersectdat;
+		intersectdat.voxelIndex = vxlIndex;
+		intersectdat.triIndex = triIndex;
+		WAIntersections.Append(intersectdat);
+	}
 }
 
 
@@ -105,7 +105,7 @@ void CSMain(uint3 ind : SV_DispatchThreadID)
 #pragma kernel CSSecond
 
 StructuredBuffer<IntersectionData> RAIntersections;
-int IntersectionCount;
+uint IntersectionCount;
 
 RWStructuredBuffer<float> WVoxelAgeBuffer;
 
@@ -121,7 +121,35 @@ void CSSecond(uint3 id : SV_DispatchThreadID)
 		uint3 voxCoords = uint3(coords.x, coords.y, k);
 		uint voxIndex = Index(voxCoords);
 
-		WVoxelAgeBuffer[voxIndex] = IntersectionCount;
-	}
+		float toset = 0;
+		for (uint n = 0; n < IntersectionCount; n++)
+		{
+			if (RAIntersections[n].voxelIndex ==  voxIndex)
+			{
+				toset = IntersectionCount;
+				n = IntersectionCount;
+			}
 
+
+		}
+		WVoxelAgeBuffer[voxIndex] = toset;
+	}
 }
+
+
+#pragma kernel CSSort
+
+StructuredBuffer<float4> RARawVertexBuffer;
+RWStructuredBuffer<float4> WSortedVertexBuffer;
+
+uint _MaxCountVertexBuffer;
+//sorts the raw append data into the sortedvertexbuffer;
+[numthreads(1, 1, 1)]
+void CSSort(uint3 id : SV_DispatchThreadID)
+{
+	uint initialIndex = Index(id);
+	float4 posAndID = RARawVertexBuffer[id.x];
+
+	if ((uint)posAndID.w < _MaxCountVertexBuffer && length(posAndID) > 0)
+		WSortedVertexBuffer[(uint)(posAndID.w)] = posAndID.xyzw;
+} 

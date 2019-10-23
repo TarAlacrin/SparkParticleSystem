@@ -23,7 +23,7 @@
   (C).y =  (A).y - (B).y; \
   (C).z =  (A).z - (B).z; \
    }
-#define LERP( A, B, C) ((B)+(A)*((C)-(B)))
+#define LERP( A, B, C) lerp(A,B,C);//((B)+(A)*((C)-(B)))
 #define MIN3(a,b,c) min(min(a,b),c) //((((a)<(b))&&((a)<(c))) ? (a) : (((b)<(c)) ? (b) : (c)))
 #define MAX3(a,b,c) max(max(a,b),c)//((((a)>(b))&&((a)>(c))) ? (a) : (((b)>(c)) ? (b) : (c)))
 #define INSIDE 0
@@ -337,5 +337,5 @@ int TriangleIntersectsUnitSquare(float3 p1, float3 p2, float3 p3)
 	t.v1 = p1;
 	t.v2 = p2;
 	t.v3 = p3;
-	return 1-t_c_intersection(t);//does it need to flip? Seems like the code I got from the web returns 0 in the event of an intersection. But IMO 1 should be intersection, cause 1 is true; it does intersect.
+	return 1-abs(t_c_intersection(t));//does it need to flip? Seems like the code I got from the web returns 0 in the event of an intersection. But IMO 1 should be intersection, cause 1 is true; it does intersect.
 }
