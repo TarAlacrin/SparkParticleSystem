@@ -119,7 +119,9 @@ namespace DanceBoxes
 			vertPosToCubeAgeCompute.SetBuffer(sortingKernel, "RARawVertexBuffer", vertPosBuffersUnsorted[READ]);
 			vertPosToCubeAgeCompute.SetBuffer(sortingKernel, "WSortedVertexBuffer", vertPosBuffersSORTED[WRITE]);
 			int[] rawvertargs = BufferTools.GetArgs(vertPosBuffersUnsorted[READ], rawVertexPositionARGSBuffer);
-			if(rawvertargs[0] > 0)
+			vertPosToCubeAgeCompute.SetInt("_MaxCountVertexBuffer", rawvertargs[0]);
+
+			if (rawvertargs[0] > 0)
 				vertPosToCubeAgeCompute.Dispatch(sortingKernel, rawvertargs[0], 1, 1);
 		}
 
@@ -140,7 +142,7 @@ namespace DanceBoxes
 		void DoFillingVoxelGrid()
 		{
 			int[] args = BufferTools.GetArgs(triangleIntersectionBuffer[READ], triangleIntersectionARGSBuffer);
-			Debug.Log("numintersections: " + args[0]);
+			//Debug.Log("numintersections: " + args[0]);
 			vertPosToCubeAgeCompute.SetInt("IntersectionCount", args[0]);
 
 			vertPosToCubeAgeCompute.SetBuffer(secondKernel, "RVertexPositions", vertPosBuffersSORTED[READ]);
@@ -149,7 +151,7 @@ namespace DanceBoxes
 
 			vertPosToCubeAgeCompute.Dispatch(secondKernel, (int)(DanceBoxManager.inst.voxelDimensions.x * DanceBoxManager.inst.voxelDimensions.y), 1, 1);
 			//if (debug)
-			//	BufferTools.DebugComputeRaw<float>(voxelAgeBuffer[READ], " SHOULD HAVE TOTALINTERSECTION COUNTS IN ALL TINGS", (int)DanceBoxManager.inst.voxelDimensions.x);
+			//	BufferTools.DebugComputeRaw<float>(filledVoxelGridBuffer[READ], " SHOULD HAVE TOTALINTERSECTION COUNTS IN ALL TINGS", (int)DanceBoxManager.inst.voxelDimensions.x);
 		}
 
 		private void OnDisable()

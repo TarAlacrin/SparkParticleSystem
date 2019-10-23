@@ -28,29 +28,50 @@ namespace DanceBoxes
 		{
 			vertexReciever = vertexPositionRecieverObject.GetComponent<IWantVertexPositions>();
 			mesh = this.gameObject.GetComponent<MeshFilter>().sharedMesh;
+			vertCount = mesh.triangles.Length * 3;
 
-			initData = new Vector4[mesh.vertices.Length]; 
+			initData = new Vector4[vertCount]; 
 			
 			for (int ind = 0; ind < initData.Length; ind ++)
 			{
-				initData[ind] = new Vector4(mesh.vertices[ind].x, mesh.vertices[ind].y, mesh.vertices[ind].z, ind);
+				initData[ind] = new Vector4(mesh.vertices[ind % mesh.vertexCount].x, mesh.vertices[ind % mesh.vertexCount].y, mesh.vertices[ind % mesh.vertexCount].z, ind);
 			}
 
-			vertCount = initData.Length;
-			compute_buffer[READ] = new ComputeBuffer(initData.Length, sizeof(float) * 4, ComputeBufferType.Append);
-			compute_buffer[WRITE] = new ComputeBuffer(initData.Length, sizeof(float) * 4, ComputeBufferType.Append);
+			compute_buffer[READ] = new ComputeBuffer(mesh.triangles.Length*3, sizeof(float) * 4, ComputeBufferType.Append);
+			compute_buffer[WRITE] = new ComputeBuffer(mesh.triangles.Length*3, sizeof(float) * 4, ComputeBufferType.Append);
 
 			compute_buffer[READ].SetData(initData);
 			compute_buffer[WRITE].SetData(initData);
+			compute_buffer[READ].SetCounterValue(0);
+			compute_buffer[WRITE].SetCounterValue(0);
+
 			argBuffer = new ComputeBuffer(4, sizeof(int), ComputeBufferType.IndirectArguments);
 
-			string initdatastr = "init vert dat";
+			string initdatastr = "init vert dat : -lengt: " + initData.Length +" -count: " + mesh.vertexCount + " -buffercount: " + mesh.vertexBufferCount;
 			for (int i = 0; i < initData.Length; i++)
 				initdatastr += "\n" + initData[i];
 			Debug.Log(initdatastr);
 
 
-			vertexReciever.PassVertexPositions(compute_buffer, mesh.triangles, mesh.vertices.Length);
+			int smallest = 100000;
+			int biggest = -1;
+			string toprint = "\t tri DATA: ";
+			for(int t = 0; t< mesh.triangles.Length;t++)
+			{
+				if (t % 3 == 0)
+					toprint += "\n";
+				toprint += t + ", ";
+				if (mesh.triangles[t] > biggest)
+					biggest = t;
+				if (mesh.triangles[t] < smallest)
+					smallest = t;
+			}
+
+			Debug.Log("biggest tri vertexIndex: " + biggest + " smollset:" + smallest + toprint);
+
+		
+
+			vertexReciever.PassVertexPositions(compute_buffer, mesh.triangles, vertCount);
 		}
 
 
@@ -74,8 +95,6 @@ namespace DanceBoxes
 
 		void DoDebug(int[] argdata)
 		{
-			Vector4[] data = new Vector4[vertCount];
-			compute_buffer[READ].GetData(data);
 			string debg = "";
 
 
@@ -84,26 +103,39 @@ namespace DanceBoxes
 			debg += "\t" + ("start vertex " + argdata[2]);
 			debg += "\t" + ("start instance " + argdata[3]);
 			debg += "\n";
-			for (int i = 0; i < data.Length; i++)
+
+			Vector4[] data = new Vector4[vertCount];//argdata[0]];
+			compute_buffer[READ].GetData(data);
+
+			for (int i = 0; i < data.Length/3; i++)
 			{
-				if(data[i].w == 0)
-					debg += data[i];//"("+data[i].x + ","+ data[i].y+","+ data[i].z+") ";
-			}	
+				debg += "\n " + i;
+				debg += "\n" + data[i] +", " + data[i+1] + ", " + data[i+2];
+
+				/*foreach(Vector4 dat in data)
+				{
+					if (i == dat.w)
+						debg += "\n" + dat;
+				}*/
+
+
+				//if(data[i].w == 0)
+			}
 			Debug.LogError(debg);
 		}
 
 		void OnRenderObject()
 		{
-			//DisplayMAT.SetPass(0);
-			//DisplayMAT.SetBuffer("_Data", compute_buffer[READ]);
-			//DisplayMAT.SetColor("col", Color.blue);
-			//DisplayMAT.SetFloat("size", 0.1f);
+			DisplayMAT.SetPass(0);
+			DisplayMAT.SetBuffer("_Data", compute_buffer[READ]);
+			DisplayMAT.SetColor("col", Color.blue);
+			DisplayMAT.SetFloat("size", 0.1f);
 
-			//int[] argdata = new int[] { 0, 1, 0, 0 };
-			//argBuffer.SetData(argdata);
-			//ComputeBuffer.CopyCount(compute_buffer[READ], argBuffer, 0);
-			//argBuffer.GetData(argdata);
-			//DoDebug(argdata);
+			int[] argdata = new int[] { 0, 1, 0, 0 };
+			argBuffer.SetData(argdata);
+			ComputeBuffer.CopyCount(compute_buffer[READ], argBuffer, 0);
+			argBuffer.GetData(argdata);
+			DoDebug(argdata);
 
 			//Graphics.DrawProceduralIndirect(MeshTopology.Points, argBuffer, 0);
 		}
