@@ -25,7 +25,22 @@ public static class BufferTools
 	}
 
 
-	public static void DebugCompute<T>(ComputeBuffer computeToDebug, string name, int dims)
+	public static void DebugComputeRaw<T>(ComputeBuffer computeToDebug, string name, int length)
+	{
+		T[] data = new T[length];
+
+		computeToDebug.GetData(data);
+
+		string todebug = name + "ARRY: " + " @f:";
+		for (int i = 0; i < length; i++)
+		{
+			todebug += data[i].ToString() + ", ";
+		}
+
+		Debug.LogWarning(todebug);
+	}
+
+	public static void DebugComputeGrid<T>(ComputeBuffer computeToDebug, string name, int dims)
 	{
 		T[] data = new T[dims* dims* dims];
 		 
