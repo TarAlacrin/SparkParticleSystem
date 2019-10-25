@@ -1,22 +1,13 @@
-﻿// Each #kernel tells which function to compile; you can have many kernels
-
-#include "Assets/DanceBoxes/ComputeIncludes.cginc"
+﻿#include "Assets/DanceBoxes/ComputeIncludes.cginc"
 #include "Assets/DanceBoxes/ComputeTriangleIncludes.cginc"
 
 #pragma kernel CSMain
 
 struct FullTriangleData
 {
-	float3 p1;
-	float3 p2;
-	float3 p3;
-};
-
-struct TriangleData
-{
-    int p1;
-    int p2;
-    int p3;
+	float4 p1;
+	float4 p2;
+	float4 p3;
 };
 
 struct IntersectionData
@@ -25,8 +16,8 @@ struct IntersectionData
 	uint triIndex;
 };
 
-StructuredBuffer<TriangleData> RTriangleVertexes;
-StructuredBuffer<float4> RVertexPositions;
+StructuredBuffer<FullTriangleData> RTriangleVertexes;
+//StructuredBuffer<float4> RVertexPositions;
 AppendStructuredBuffer<IntersectionData> WAIntersections;
 
 float4 _Dimensions;
@@ -41,28 +32,41 @@ int3 Coord(float index)
 	return int3(mod(index, _Dimensions.x), mod(floor(index / _Dimensions.x), _Dimensions.y), floor(index / (_Dimensions.x * _Dimensions.y)));
 }
 
+float3 min3(float3 v1, float3 v2, float3 v3)
+{
+    float3 v0;
+    v0.x = min(min(v1.x, v2.x), v3.x);
+    v0.y = min(min(v1.y, v2.y), v3.y);
+    v0.z = min(min(v1.z, v2.z), v3.z);
+    return v0;
+}
+
+float3 max3(float3 v1, float3 v2, float3 v3)
+{
+    float3 v0;
+    v0.x = max(max(v1.x, v2.x), v3.x);
+    v0.y = max(max(v1.y, v2.y), v3.y);
+    v0.z = max(max(v1.z, v2.z), v3.z);
+    return v0;
+}
+
 
 FullTriangleData GetTriangleFromIndex(uint id)
 {
-	FullTriangleData tri;
-	TriangleData trindex = RTriangleVertexes[id];
-	tri.p1 = RVertexPositions[trindex.p1].xyz;
-	tri.p2 = RVertexPositions[trindex.p2].xyz;
-	tri.p3 = RVertexPositions[trindex.p3].xyz;
+    FullTriangleData tri = RTriangleVertexes[id];
+
+    //FullTriangleData tri;
+    //uint trindex = id * 3;
+    //tri.p1 = RTriangleVertexes[trindex].xyzw;
+    //tri.p2 = RTriangleVertexes[trindex+1].xyzw;
+    //tri.p3 = RTriangleVertexes[trindex+2].xyzw;
 	return tri;
 }
 
-void CheckIntersect(FullTriangleData tri, uint3 vxlCoords, uint vxlIndex, uint triIndex)
+void CheckIntersect(FullTriangleData tri, uint3 vxl3dIndex, uint vxlIndex, uint triIndex)
 {
-
-	/*if (mod(vxlCoords.x, 2) == 1 && mod(vxlCoords.y, 2) == 1 && mod(vxlCoords.z, 2) == 0 && mod(triIndex, 2) ==0 )
-	{
-		IntersectionData intersectdat;
-		intersectdat.voxelIndex = vxlIndex;
-		intersectdat.triIndex = triIndex;
-		WAIntersections.Append(intersectdat);
-	}*/
-	int intersection = TriangleIntersectsUnitSquare(tri.p1 - vxlCoords, tri.p2 - vxlCoords, tri.p3 - vxlCoords);
+    float3 vxlCoords = float3(vxl3dIndex);
+    int intersection = TriangleIntersectsUnitSquare(tri.p1.xyz - float3(vxlCoords), tri.p2.xyz - float3(vxlCoords), tri.p3.xyz - float3(vxlCoords));
 	
 	if (intersection)
 	{
@@ -78,19 +82,17 @@ void CheckIntersect(FullTriangleData tri, uint3 vxlCoords, uint vxlIndex, uint t
 [numthreads(1, 1, 1)]
 void CSMain(uint3 ind : SV_DispatchThreadID)
 {
-    //uint index = Index(ind);
-    //int3 coords = Coord(ind.x);
 	FullTriangleData tri = GetTriangleFromIndex(ind.x);
-	float3 minp = min(min(tri.p1, tri.p2), tri.p3);
-	float3 maxp = max(max(tri.p1, tri.p2), tri.p3);
+    float3 minp = min3(tri.p1.xyz, tri.p2.xyz, tri.p3.xyz); //min(min(tri.p1.xyz, tri.p2.xyz), tri.p3.xyz);
+    float3 maxp = max3(tri.p1.xyz, tri.p2.xyz, tri.p3.xyz); //max(max(tri.p1.xyz, tri.p2.xyz), tri.p3.xyz);
 	maxp = min(ceil(maxp), _Dimensions.xyz);
 	minp = max(floor(minp), float3(0,0,0));
 
 	for (uint i = (uint)minp.x; i < (uint)maxp.x; i++)
 	{
-		for (uint j = (uint)minp.x; j < (uint)maxp.x; j++)
+		for (uint j = (uint)minp.y; j < (uint)maxp.y; j++)
 		{
-			for (uint k = (uint)minp.x; k < (uint)maxp.x; k++)
+			for (uint k = (uint)minp.z; k < (uint)maxp.z; k++)
 			{
 				uint3 ijk = uint3(i, j, k);
 				uint voxelIndex = Index(ijk);
@@ -129,15 +131,13 @@ void CSSecond(uint3 id : SV_DispatchThreadID)
 				toset = IntersectionCount;
 				n = IntersectionCount;
 			}
-
-
 		}
 		WVoxelAgeBuffer[voxIndex] = toset;
 	}
 }
 
 
-#pragma kernel CSSort
+/*#pragma kernel CSSort
 
 StructuredBuffer<float4> RARawVertexBuffer;
 RWStructuredBuffer<float4> WSortedVertexBuffer;
@@ -152,4 +152,4 @@ void CSSort(uint3 id : SV_DispatchThreadID)
 
 	if ((uint)posAndID.w < _MaxCountVertexBuffer && length(posAndID) > 0)
 		WSortedVertexBuffer[(uint)(posAndID.w)] = posAndID.xyzw;
-} 
+} */

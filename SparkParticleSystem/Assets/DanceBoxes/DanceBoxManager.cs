@@ -11,6 +11,8 @@ namespace DanceBoxes
 		//128//512//1024//2048//4096//8192//16384//32768//65536//131072//262144//524288//1048576
 		public int singleDimensionCount = 8;
 
+		public int captureFrametime = 20;
+
 		public Vector3 voxelDimensions{
 			get{
 				return new Vector3(singleDimensionCount, singleDimensionCount, singleDimensionCount);
@@ -60,6 +62,8 @@ namespace DanceBoxes
 		{
 			//Debug.Log("sizeOfVOXEL:" + sizeOfVoxelData + " SIZE OF QUAD?:" + sizeOfQuadData + " sizeofflot: " + sizeof(float));
 			DanceBoxManager.inst = this;
+			if(captureFrametime >0)
+			Time.captureFramerate = captureFrametime;
 		}
 
 	}

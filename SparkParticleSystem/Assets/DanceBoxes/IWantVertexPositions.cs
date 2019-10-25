@@ -6,6 +6,6 @@ namespace DanceBoxes
 {
 	public interface IWantVertexPositions
 	{
-		void PassVertexPositions(ComputeBuffer[] buffers, int[] triangleArray, int vertexCount);
+		void PassVertexPositions(ComputeBuffer[] buffers,  int vertexCount);
 	}
 }

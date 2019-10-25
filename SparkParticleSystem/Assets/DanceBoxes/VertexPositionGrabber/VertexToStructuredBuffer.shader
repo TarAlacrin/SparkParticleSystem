@@ -13,13 +13,15 @@ Pass
 			ZTest Always
 			Cull Off
 			ZWrite Off
-CGPROGRAM
+			Fog { Mode off }
+		CGPROGRAM
+			#include "UnityCG.cginc"
             #pragma vertex vert
             #pragma fragment frag
 			#pragma geometry geom
             #pragma target 5.0
 			 
-            uniform AppendStructuredBuffer<float4> appendBuffer : register(u1);
+            uniform AppendStructuredBuffer<float4> WATriVertexPositionBuffer : register(u1);
 
 			struct APPDATA
 			{
@@ -28,12 +30,6 @@ CGPROGRAM
 			    uint id : SV_VertexID;    
 				float4 col : COLOR;
             };
- 
-            //struct v2f
-            //{
-			//	float4 vertex : SV_POSITION;
-			//	float2 uv : TEXCOORD0;
-            //};
 
 			struct v2g {
 				float4 pos : SV_POSITION;
@@ -51,28 +47,32 @@ CGPROGRAM
 			v2g vert (APPDATA IN)
             {
 				v2g vs;
-				//appendBuffer.Append(float4(mul(unity_ObjectToWorld, IN.vertex).xyz, IN.id));
 				vs.worldPos = float4(mul(unity_ObjectToWorld, IN.vertex).xyz, IN.id);
 
 				vs.pos = UnityObjectToClipPos(IN.vertex);
 				vs.uv = IN.uv;
 				vs.col = IN.col;
+
+				WATriVertexPositionBuffer.Append(vs.worldPos);
+
                 return vs;
             }
 
 			[maxvertexcount(3)]
 			void geom(triangle v2g input[3], inout TriangleStream<g2f> tristream) {
-				g2f o;
-				o.pos = input[0].pos;	o.uv = input[0].uv;		o.col = input[0].col;
-				tristream.Append(o);
-				o.pos = input[1].pos;	o.uv = input[1].uv;		o.col = input[1].col;
-				tristream.Append(o);
-				o.pos = input[2].pos;	o.uv = input[2].uv;		o.col = input[2].col;
-				tristream.Append(o);
-				appendBuffer.Append(input[0].worldPos);
-				appendBuffer.Append(input[1].worldPos);
-				appendBuffer.Append(input[2].worldPos);
-				 
+				//g2f o;
+				//o.pos = input[0].pos;	o.uv = input[0].uv;		o.col = input[0].col;
+				//tristream.Append(o);
+				//o.pos = input[1].pos;	o.uv = input[1].uv;		o.col = input[1].col;
+				//tristream.Append(o);
+				//o.pos = input[2].pos;	o.uv = input[2].uv;		o.col = input[2].col;
+				//tristream.Append(o);
+
+
+				//WATriVertexPositionBuffer.Append(input[0].worldPos);
+				//WATriVertexPositionBuffer.Append(input[1].worldPos);
+				//WATriVertexPositionBuffer.Append(input[2].worldPos);
+				// 
 			}
  
 			float4 frag (g2f ps) : SV_TARGET

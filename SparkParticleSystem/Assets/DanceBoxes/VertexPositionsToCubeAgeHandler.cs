@@ -16,17 +16,18 @@ namespace DanceBoxes
 		public GameObject voxelAgeRecipientObject;
 		IWantVoxelAges voxelAgeRecipient;
 
-		ComputeBuffer triangleIntersectionARGSBuffer;
+
+		ComputeBuffer[] triVertPosBuffers;
 		ComputeBuffer rawVertexPositionARGSBuffer;
 
-		ComputeBuffer[] vertPosBuffersUnsorted;
 		ComputeBuffer[] filledVoxelGridBuffer = new ComputeBuffer[2];
 
-		ComputeBuffer[] vertPosBuffersSORTED = new ComputeBuffer[2];
+		//ComputeBuffer[] vertPosBuffersSORTED = new ComputeBuffer[2];
 
 		ComputeBuffer[] triangleIntersectionBuffer = new ComputeBuffer[2];
+		ComputeBuffer triangleIntersectionARGSBuffer;
 
-		ComputeBuffer triangleBuffer;
+		//ComputeBuffer triangleBuffer;
 
 		int triangleCount;
 		int vertexCount;
@@ -70,45 +71,37 @@ namespace DanceBoxes
 		}
 
 
-		void IWantVertexPositions.PassVertexPositions(ComputeBuffer[] vertexPositionBuffers, int[] rawTriangleArray, int vertCount)
+		void IWantVertexPositions.PassVertexPositions(ComputeBuffer[] parVertexPositionBuffers, int parVertexCount)
 		{
-			vertPosBuffersUnsorted = vertexPositionBuffers;
-			TriangleData[] triangleArray = new TriangleData[rawTriangleArray.Length /3];
-			for(int i = 0; i < triangleArray.Length; i++)
-			{
-				int i3 = i * 3;
-				triangleArray[i] = new TriangleData(rawTriangleArray[i3], rawTriangleArray[i3 + 1], rawTriangleArray[i3 + 2]);
-			}
-
-			triangleBuffer = new ComputeBuffer(triangleArray.Length, sizeof(int) * 3, ComputeBufferType.Default);
-			triangleBuffer.SetData(triangleArray);
-			vertPosToCubeAgeCompute.SetBuffer(mainKernel, "RTriangleVertexes", triangleBuffer);
-			vertPosToCubeAgeCompute.SetBuffer(secondKernel, "RTriangleVertexes", triangleBuffer);
-
-			triangleCount = triangleArray.Length;
-			triangleIntersectionBuffer[READ] = new ComputeBuffer(triangleCount*(DanceBoxManager.inst.totalVoxels/2), DanceBoxManager.inst.sizeOfIntersectionData, ComputeBufferType.Append);
-			triangleIntersectionBuffer[WRITE] = new ComputeBuffer(triangleCount*(DanceBoxManager.inst.totalVoxels/2), DanceBoxManager.inst.sizeOfIntersectionData, ComputeBufferType.Append);
-			vertexCount = vertCount;
-			vertPosBuffersSORTED[READ] = new ComputeBuffer(vertexCount, sizeof(float) *4, ComputeBufferType.Default);
-			vertPosBuffersSORTED[WRITE] = new ComputeBuffer(vertexCount, sizeof(float) * 4, ComputeBufferType.Default);
-			vertPosToCubeAgeCompute.SetInt("_MaxCountVertexBuffer", vertCount);
+			triVertPosBuffers = parVertexPositionBuffers;
+			triangleCount = parVertexCount / 3;
+			triangleIntersectionBuffer[READ] = new ComputeBuffer(triangleCount*(DanceBoxManager.inst.totalVoxels), DanceBoxManager.inst.sizeOfIntersectionData, ComputeBufferType.Append);
+			triangleIntersectionBuffer[WRITE] = new ComputeBuffer(triangleCount*(DanceBoxManager.inst.totalVoxels), DanceBoxManager.inst.sizeOfIntersectionData, ComputeBufferType.Append);
+			vertexCount = parVertexCount;
+			vertPosToCubeAgeCompute.SetInt("_MaxCountVertexBuffer", vertexCount);
 		}
 
 		void Update()
 		{
 			BufferTools.Swap(filledVoxelGridBuffer);
 			BufferTools.Swap(triangleIntersectionBuffer);
-			BufferTools.Swap(vertPosBuffersSORTED);
 
-			if (vertPosBuffersUnsorted !=null && triangleCount >0)
+			if (triVertPosBuffers != null && triangleCount > 0)
 			{
 				DoCollisions();
 			}
+
+
 		}
+
+		private void LateUpdate()
+		{
+		}
+
 
 		void DoCollisions()
 		{
-			DoSorting();
+			//DoSorting();
 			DoIntersections();
 			DoFillingVoxelGrid();
 			voxelAgeRecipient.GiveSwappedVoxelAgeBuffer(filledVoxelGridBuffer[READ]);
@@ -116,24 +109,24 @@ namespace DanceBoxes
 
 		void DoSorting()
 		{
-			vertPosToCubeAgeCompute.SetBuffer(sortingKernel, "RARawVertexBuffer", vertPosBuffersUnsorted[READ]);
+			/*vertPosToCubeAgeCompute.SetBuffer(sortingKernel, "RARawVertexBuffer", triVertPosBuffers[READ]);
 			vertPosToCubeAgeCompute.SetBuffer(sortingKernel, "WSortedVertexBuffer", vertPosBuffersSORTED[WRITE]);
-			int[] rawvertargs = BufferTools.GetArgs(vertPosBuffersUnsorted[READ], rawVertexPositionARGSBuffer);
+			int[] rawvertargs = BufferTools.GetArgs(triVertPosBuffers[READ], rawVertexPositionARGSBuffer);
 			vertPosToCubeAgeCompute.SetInt("_MaxCountVertexBuffer", rawvertargs[0]);
 
 			if (rawvertargs[0] > 0)
 				vertPosToCubeAgeCompute.Dispatch(sortingKernel, rawvertargs[0], 1, 1);
-		}
+		*/}
 
 
 		void DoIntersections()
 		{
-			vertPosToCubeAgeCompute.SetBuffer(mainKernel, "RVertexPositions", vertPosBuffersSORTED[READ]);
+			vertPosToCubeAgeCompute.SetBuffer(mainKernel, "RTriangleVertexes", triVertPosBuffers[READ]);
 			triangleIntersectionBuffer[WRITE].SetCounterValue(0);
 			vertPosToCubeAgeCompute.SetBuffer(mainKernel, "WAIntersections", triangleIntersectionBuffer[WRITE]);
 
 			if (debug)
-				BufferTools.DebugComputeRaw<Vector4>(vertPosBuffersSORTED[READ], "sorted vertex pos check", vertexCount);
+				BufferTools.DebugComputeRaw<Vector4>(triVertPosBuffers[READ], "unsorted vertex pos check", vertexCount);
 
 			vertPosToCubeAgeCompute.Dispatch(mainKernel, triangleCount, 1, 1);
 
@@ -142,10 +135,10 @@ namespace DanceBoxes
 		void DoFillingVoxelGrid()
 		{
 			int[] args = BufferTools.GetArgs(triangleIntersectionBuffer[READ], triangleIntersectionARGSBuffer);
-			//Debug.Log("numintersections: " + args[0]);
+			Debug.Log("numintersections: " + args[0]);
 			vertPosToCubeAgeCompute.SetInt("IntersectionCount", args[0]);
 
-			vertPosToCubeAgeCompute.SetBuffer(secondKernel, "RVertexPositions", vertPosBuffersSORTED[READ]);
+			vertPosToCubeAgeCompute.SetBuffer(secondKernel, "RTriangleVertexes", triVertPosBuffers[READ]);
 			vertPosToCubeAgeCompute.SetBuffer(secondKernel, "RAIntersections", triangleIntersectionBuffer[READ]);
 			vertPosToCubeAgeCompute.SetBuffer(secondKernel, "WVoxelAgeBuffer", filledVoxelGridBuffer[WRITE]);
 
@@ -160,20 +153,14 @@ namespace DanceBoxes
 			filledVoxelGridBuffer[WRITE].Dispose();
 			triangleIntersectionBuffer[READ].Dispose();
 			triangleIntersectionBuffer[WRITE].Dispose();
-			vertPosBuffersSORTED[READ].Dispose();
-			vertPosBuffersSORTED[WRITE].Dispose();
-			triangleBuffer.Dispose();
+			//vertPosBuffersSORTED[READ].Dispose();
+			//vertPosBuffersSORTED[WRITE].Dispose();
+			//triangleBuffer.Dispose();
 			triangleIntersectionARGSBuffer.Dispose();
 			rawVertexPositionARGSBuffer.Dispose();
 		}
 
 
-		private void LateUpdate()
-		{
-			/*BufferTools.Swap(voxelAgeBuffer);
-			BufferTools.Swap(triangleIntersectionBuffer);
-			BufferTools.Swap(vertPosBuffersSORTED);*/
-		}
 
 	}
 
