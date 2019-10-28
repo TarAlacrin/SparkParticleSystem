@@ -30,7 +30,17 @@ namespace DanceBoxes
 		void Start()
 		{
 			vertexReciever = vertexPositionRecieverObject.GetComponent<IWantVertexPositions>();
-			mesh = this.gameObject.GetComponent<MeshFilter>().sharedMesh;
+
+			MeshFilter mf = this.gameObject.GetComponent<MeshFilter>();
+			if (mf != null)
+				mesh = mf.mesh;
+			else
+			{
+				SkinnedMeshRenderer smr = this.gameObject.GetComponent<SkinnedMeshRenderer>();
+				mesh =  smr.sharedMesh;
+			}
+
+
 			vertCount = mesh.triangles.Length;
 
 			initData = new Vector4[vertCount]; 
