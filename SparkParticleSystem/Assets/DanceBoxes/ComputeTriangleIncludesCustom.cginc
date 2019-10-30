@@ -17,22 +17,38 @@ int intpoint_inside_trigon(float2 s, float2 a, float2 b, float2 c)
     return 1;
 }
 
+float precalculated_colision(float3 p1, float2 pNxyDividedBypNz)
+{
+	float t = (p1.x *pNxyDividedBypNz.x + p1.y*pNxyDividedBypNz.y) + p1.z;
+
+	return t;
+}
 
 
 float colision(float3 p1, float3 p2, float3 p3)
 {
     float3 pnormal = normalize(cross(p2 - p1, p3 - p2));
-    
-    //pn.x*X -pn.x*p1.x + pn.y*Y -pn.y*p1.y + pn.z*Z -pn.z*p1.z
-    //pn.z*Z =;
-    //Z = t*1 = (pn.x*p1.x + pn.y*p1.y + pn.z*p1.z)/pn.z 
-    float t = ((pnormal.x * p1.x + pnormal.y * p1.y + pnormal.z * p1.z) / pnormal.z);
+
+	float t = precalculated_colision(p1, pnormal.xy / pnormal.z);
+
 
     if (saturate(t) == t)
         return t * sign(pnormal.z);
     else
         return 0;
 }
+
+
+float3 CalculateNormalDividendValue(float3 p1, float3 p2, float3 p3)
+{
+	float3 pnormal = normalize(cross(p2 - p1, p3 - p2));
+	float2 pNxyDividedBypNz = pnormal.xy / pnormal.z;
+	float3 pNxyDividedBypNzPlusSignZ = float3(pNxyDividedBypNz.x, pNxyDividedBypNz.y, sign(pnormal.z));
+	return pNxyDividedBypNzPlusSignZ;
+}
+
+
+
 
 
 float TriangleIntersectsUnitSquare(float3 p1, float3 p2, float3 p3)
@@ -46,4 +62,21 @@ float TriangleIntersectsUnitSquare(float3 p1, float3 p2, float3 p3)
 
 
     return intersect;
+}
+
+
+float TriangleIntersectsUnitSquarePreCalculated(float3 p1, float3 p2, float3 p3, float3 pNxyDividedBypNzPlusSignZ)
+{
+	float intersect = (intpoint_inside_trigon(float2(0.0, 0.0), p1.xy, p2.xy, p3.xy));
+
+	if (intersect > 0)
+	{
+		intersect = precalculated_colision(p1, pNxyDividedBypNzPlusSignZ.xy);
+		//if (saturate(intersect) == intersect)
+		//	intersect *= pNxyDividedBypNzPlusSignZ.z;
+		//else
+		//	intersect = 0;
+	}
+	
+	return intersect;
 }
