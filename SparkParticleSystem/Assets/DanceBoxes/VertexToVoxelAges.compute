@@ -1,7 +1,7 @@
 ﻿#include "Assets/DanceBoxes/ComputeIncludes.cginc"
 #include "Assets/DanceBoxes/ComputeTriangleIncludesCustom.cginc"
 
-#pragma kernel CSMain
+#pragma kernel CSRunIntersections
 
 struct FullTriangleData
 {
@@ -82,7 +82,7 @@ void CheckIntersect(FullTriangleData tri, uint3 vxl3dIndex, uint vxlIndex, uint 
 
 //this gets run once for each triangle in the system
 [numthreads(1, 1, 1)]
-void CSMain(uint3 ind : SV_DispatchThreadID)
+void CSRunIntersections(uint3 ind : SV_DispatchThreadID)
 {
 	FullTriangleData tri = GetTriangleFromIndex(ind.x);
     float3 minp = min3(tri.p1.xyz, tri.p2.xyz, tri.p3.xyz); //min(min(tri.p1.xyz, tri.p2.xyz), tri.p3.xyz);
@@ -107,7 +107,7 @@ void CSMain(uint3 ind : SV_DispatchThreadID)
   
 
 
-#pragma kernel CSSecond
+#pragma kernel CSIntersectionsToVoxelAge
 
 StructuredBuffer<IntersectionData> RAIntersections;
 uint IntersectionCount;
@@ -116,7 +116,7 @@ RWStructuredBuffer<float> WVoxelAgeBuffer;
 
 //runs once for each point on the x,y grid
 [numthreads(1,1,1)]
-void CSSecond(uint3 id : SV_DispatchThreadID)
+void CSIntersectionsToVoxelAge(uint3 id : SV_DispatchThreadID)
 {
 	uint initialIndex = Index(id);
 	int3 coords = Coord(initialIndex);

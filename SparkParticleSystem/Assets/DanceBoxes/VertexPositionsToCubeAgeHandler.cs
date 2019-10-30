@@ -27,29 +27,27 @@ namespace DanceBoxes
 		ComputeBuffer[] triangleIntersectionBuffer = new ComputeBuffer[2];
 		ComputeBuffer triangleIntersectionARGSBuffer;
 
-		//ComputeBuffer triangleBuffer;
-
 		int triangleCount;
 		int vertexCount;
-		public const string _mainKernelName = "CSMain"; //"CSBlockMain";//"CSTwirl";
-		public int mainKernel
+		public const string _runIntersectionsKernelName = "CSRunIntersections";
+		public int findIntersectionsKernel
 		{
 			get
 			{
-				return vertPosToCubeAgeCompute.FindKernel(_mainKernelName);
+				return vertPosToCubeAgeCompute.FindKernel(_runIntersectionsKernelName);
 			}
 		}
 
-		public const string _secondKernelName = "CSSecond"; //"CSBlockMain";//"CSTwirl";
-		public int secondKernel
+		public const string _intrsct2vxlAgeKernelName = "CSIntersectionsToVoxelAge";
+		public int intrsct2VxlAgeKernel
 		{
 			get
 			{
-				return vertPosToCubeAgeCompute.FindKernel(_secondKernelName);
+				return vertPosToCubeAgeCompute.FindKernel(_intrsct2vxlAgeKernelName);
 			}
 		}
 
-		public const string _sortingKernelName = "CSSort"; //"CSBlockMain";//"CSTwirl";
+		public const string _sortingKernelName = "CSSort"; 
 		public int sortingKernel
 		{
 			get
@@ -101,8 +99,8 @@ namespace DanceBoxes
 
 		void DoCollisions()
 		{
-			//DoSorting();
 			DoIntersections();
+			//DoSorting();
 			DoFillingVoxelGrid();
 			voxelAgeRecipient.GiveSwappedVoxelAgeBuffer(filledVoxelGridBuffer[READ]);
 		}
@@ -121,14 +119,14 @@ namespace DanceBoxes
 
 		void DoIntersections()
 		{
-			vertPosToCubeAgeCompute.SetBuffer(mainKernel, "RTriangleVertexes", triVertPosBuffers[READ]);
+			vertPosToCubeAgeCompute.SetBuffer(findIntersectionsKernel, "RTriangleVertexes", triVertPosBuffers[READ]);
 			triangleIntersectionBuffer[WRITE].SetCounterValue(0);
-			vertPosToCubeAgeCompute.SetBuffer(mainKernel, "WAIntersections", triangleIntersectionBuffer[WRITE]);
+			vertPosToCubeAgeCompute.SetBuffer(findIntersectionsKernel, "WAIntersections", triangleIntersectionBuffer[WRITE]);
 
 			if (debug)
 				BufferTools.DebugComputeRaw<Vector4>(triVertPosBuffers[READ], "unsorted vertex pos check", vertexCount);
 
-			vertPosToCubeAgeCompute.Dispatch(mainKernel, triangleCount, 1, 1);
+			vertPosToCubeAgeCompute.Dispatch(findIntersectionsKernel, triangleCount, 1, 1);
 
 		}
 
@@ -138,11 +136,11 @@ namespace DanceBoxes
 			//Debug.Log("numintersections: " + args[0]);
 			vertPosToCubeAgeCompute.SetInt("IntersectionCount", args[0]);
 
-			vertPosToCubeAgeCompute.SetBuffer(secondKernel, "RTriangleVertexes", triVertPosBuffers[READ]);
-			vertPosToCubeAgeCompute.SetBuffer(secondKernel, "RAIntersections", triangleIntersectionBuffer[READ]);
-			vertPosToCubeAgeCompute.SetBuffer(secondKernel, "WVoxelAgeBuffer", filledVoxelGridBuffer[WRITE]);
+			vertPosToCubeAgeCompute.SetBuffer(intrsct2VxlAgeKernel, "RTriangleVertexes", triVertPosBuffers[READ]);
+			vertPosToCubeAgeCompute.SetBuffer(intrsct2VxlAgeKernel, "RAIntersections", triangleIntersectionBuffer[READ]);
+			vertPosToCubeAgeCompute.SetBuffer(intrsct2VxlAgeKernel, "WVoxelAgeBuffer", filledVoxelGridBuffer[WRITE]);
 
-			vertPosToCubeAgeCompute.Dispatch(secondKernel, (int)(DanceBoxManager.inst.voxelDimensions.x * DanceBoxManager.inst.voxelDimensions.y), 1, 1);
+			vertPosToCubeAgeCompute.Dispatch(intrsct2VxlAgeKernel, (int)(DanceBoxManager.inst.voxelDimensions.x * DanceBoxManager.inst.voxelDimensions.y), 1, 1);
 			//if (debug)
 			//	BufferTools.DebugComputeRaw<float>(filledVoxelGridBuffer[READ], " SHOULD HAVE TOTALINTERSECTION COUNTS IN ALL TINGS", (int)DanceBoxManager.inst.voxelDimensions.x);
 		}
