@@ -176,6 +176,7 @@
     <None Include="Assets\PostProcessing\Resources\Shaders\ColorGrading.cginc" />
     <None Include="Assets\PostProcessing\Resources\Shaders\AmbientOcclusion.cginc" />
     <None Include="Assets\PostProcessing\Editor Resources\Monitors\WaveformCompute.compute" />
+    <None Include="Assets\DanceBoxes\ComputeTriangleIncludesCustom.cginc" />
     <Reference Include="Unity.TextMeshPro.Editor">
       <HintPath>C:/Users/Sam/Documents/GitHub/SparkParticleSystem/SparkParticleSystem/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
     </Reference>

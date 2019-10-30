@@ -1,5 +1,5 @@
 ﻿#include "Assets/DanceBoxes/ComputeIncludes.cginc"
-#include "Assets/DanceBoxes/ComputeTriangleIncludes.cginc"
+#include "Assets/DanceBoxes/ComputeTriangleIncludesCustom.cginc"
 
 #pragma kernel CSMain
 
@@ -12,6 +12,7 @@ struct FullTriangleData
 
 struct IntersectionData
 {
+    float normalAndDistance;
 	uint voxelIndex;
 	uint triIndex;
 };
@@ -66,11 +67,12 @@ FullTriangleData GetTriangleFromIndex(uint id)
 void CheckIntersect(FullTriangleData tri, uint3 vxl3dIndex, uint vxlIndex, uint triIndex)
 {
     float3 vxlCoords = float3(vxl3dIndex);
-    int intersection = TriangleIntersectsUnitSquare(tri.p1.xyz - float3(vxlCoords), tri.p2.xyz - float3(vxlCoords), tri.p3.xyz - float3(vxlCoords));
+    float intersection = TriangleIntersectsUnitSquare(tri.p1.xyz - float3(vxlCoords), tri.p2.xyz - float3(vxlCoords), tri.p3.xyz - float3(vxlCoords));
 	
-	if (intersection)
+    if (abs(intersection)>0)
 	{
 		IntersectionData intersectdat;
+        intersectdat.normalAndDistance = intersection;
 		intersectdat.voxelIndex = vxlIndex;
 		intersectdat.triIndex = triIndex;
 		WAIntersections.Append(intersectdat);
@@ -92,6 +94,7 @@ void CSMain(uint3 ind : SV_DispatchThreadID)
 	{
 		for (uint j = (uint)minp.y; j < (uint)maxp.y; j++)
 		{
+            //in the future, doesnt need to check in the z direction probably; just do the casts once and then add the intersect depending on the normaldistance
 			for (uint k = (uint)minp.z; k < (uint)maxp.z; k++)
 			{
 				uint3 ijk = uint3(i, j, k);
@@ -117,23 +120,34 @@ void CSSecond(uint3 id : SV_DispatchThreadID)
 {
 	uint initialIndex = Index(id);
 	int3 coords = Coord(initialIndex);
+    int penDown = -1;
 
 	for (uint k = 0; k < (uint)_Dimensions.z; k++)
 	{
 		uint3 voxCoords = uint3(coords.x, coords.y, k);
 		uint voxIndex = Index(voxCoords);
 
-		float toset = 0;
+        float currentClosestTri = 0;
+        int localPenDown = penDown;
+
 		for (uint n = 0; n < IntersectionCount; n++)
 		{
 			if (RAIntersections[n].voxelIndex ==  voxIndex)
 			{
-				toset = IntersectionCount;
-				n = IntersectionCount;
+                int penPosition = 10 * sign(-RAIntersections[n].normalAndDistance);
+                localPenDown = max(localPenDown, penPosition);
+
+                if (abs(RAIntersections[n].normalAndDistance) > currentClosestTri)
+                {
+                    currentClosestTri = abs(RAIntersections[n].normalAndDistance);
+                    penDown = penPosition;
+
+                }
 			}
 		}
-		WVoxelAgeBuffer[voxIndex] = toset;
-	}
+
+        WVoxelAgeBuffer[voxIndex] = localPenDown; //localPenDown;
+    }
 }
 
 

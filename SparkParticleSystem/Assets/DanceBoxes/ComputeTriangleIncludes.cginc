@@ -337,5 +337,5 @@ int TriangleIntersectsUnitSquare(float3 p1, float3 p2, float3 p3)
 	t.v1 = p1;
 	t.v2 = p2;
 	t.v3 = p3;
-	return 1-abs(t_c_intersection(t));//does it need to flip? Seems like the code I got from the web returns 0 in the event of an intersection. But IMO 1 should be intersection, cause 1 is true; it does intersect.
+    return 1-(t_c_intersection(t));//does it need to flip? Seems like the code I got from the web returns 0 in the event of an intersection. But IMO 1 should be intersection, cause 1 is true; it does intersect.
 }

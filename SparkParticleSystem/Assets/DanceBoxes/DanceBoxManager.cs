@@ -100,6 +100,7 @@ namespace DanceBoxes
 
 	struct IntersectionData
 	{
+		float intersectionDistanceAndNormal;
 		int voxelID;
 		int triangleID;
 	}
