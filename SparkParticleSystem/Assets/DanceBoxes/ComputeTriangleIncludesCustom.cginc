@@ -48,7 +48,7 @@ float3 CalculateNormalDividendValue(float3 p1, float3 p2, float3 p3)
 }
 
 
-float TriangleIntersectsUnitSquar(float3 p1, float3 p2, float3 p3)
+float TriangleIntersectsUnitSquare(float3 p1, float3 p2, float3 p3)
 {
 	float intersect = (intpoint_inside_trigon(float2(0.0, 0.0), p1.xy, p2.xy, p3.xy));
 
@@ -63,7 +63,7 @@ float TriangleIntersectsUnitSquar(float3 p1, float3 p2, float3 p3)
 
 
 
-float TriangleIntersectsUnitSquarePrecalcedOLDE(float3 p1, float3 p2, float3 p3, float3 pNxyDividedBypNzPlusSignZ)
+float TriangleIntersectsUnitSquarePrecalcedALTERNATE(float3 p1, float3 p2, float3 p3, float3 pNxyDividedBypNzPlusSignZ)
 {
     float intersect = (intpoint_inside_trigon(float2(0.0, 0.0), p1.xy, p2.xy, p3.xy));
 

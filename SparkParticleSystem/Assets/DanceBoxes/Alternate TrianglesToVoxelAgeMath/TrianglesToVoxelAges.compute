@@ -61,10 +61,10 @@ FullTriangleData GetTriangleFromIndex(uint id)
 }
 
 
-void CheckIntersect(FullTriangleData tri, uint3 vxl3dIndex, uint triIndex, float3 precalculatedNormalDividend)
+void CheckIntersectALTERNATE(FullTriangleData tri, uint3 vxl3dIndex, uint triIndex, float3 precalculatedNormalDividend)
 {
 	float3 vxlCoords = float3(vxl3dIndex);
-	float intersection = TriangleIntersectsUnitSquarePrecalcedOLDE(tri.p1.xyz - float3(vxlCoords), tri.p2.xyz - float3(vxlCoords), tri.p3.xyz - float3(vxlCoords), precalculatedNormalDividend);
+	float intersection = TriangleIntersectsUnitSquarePrecalcedALTERNATE(tri.p1.xyz - float3(vxlCoords), tri.p2.xyz - float3(vxlCoords), tri.p3.xyz - float3(vxlCoords), precalculatedNormalDividend);
 
 	if (abs(intersection) > 0)
 	{
@@ -96,8 +96,29 @@ void CheckIntersectPreCalculated(FullTriangleData tri, uint3 vxl3dIndex, uint tr
 }
 
 
+void CSRunIntersectionsALTERNATE(uint3 ind)
+{
+	FullTriangleData tri = GetTriangleFromIndex(ind.x);
+	float3 minp = min3(tri.p1.xyz, tri.p2.xyz, tri.p3.xyz); //min(min(tri.p1.xyz, tri.p2.xyz), tri.p3.xyz);
+	float3 maxp = max3(tri.p1.xyz, tri.p2.xyz, tri.p3.xyz); //max(max(tri.p1.xyz, tri.p2.xyz), tri.p3.xyz);
+	maxp = min(ceil(maxp), _Dimensions.xyz);
+	minp = max(floor(minp), float3(0, 0, 0));
 
 
+	float3 normalDividendValue = CalculateNormalDividendValue(tri.p1.xyz, tri.p2.xyz, tri.p3.xyz);
+	for (uint i = (uint)minp.x; i < (uint)maxp.x; i++)
+	{
+		for (uint j = (uint)minp.y; j < (uint)maxp.y; j++)
+		{
+			for (uint k = (uint)minp.z; k < (uint)maxp.z; k++)
+			{
+				uint3 ijk = uint3(i, j, k);
+				CheckIntersectALTERNATE(tri, ijk, ind.x, normalDividendValue);
+
+			}
+		}
+	}
+}
 
 //this gets run once for each triangle in the system
 [numthreads(1, 1, 1)]
