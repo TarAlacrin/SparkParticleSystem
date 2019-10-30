@@ -61,13 +61,14 @@ FullTriangleData GetTriangleFromIndex(uint id)
 }
 
 
-void CheckIntersect(FullTriangleData tri, uint3 vxl3dIndex, uint vxlIndex, uint triIndex)
+void CheckIntersect(FullTriangleData tri, uint3 vxl3dIndex, uint triIndex, float3 precalculatedNormalDividend)
 {
 	float3 vxlCoords = float3(vxl3dIndex);
-	float intersection = TriangleIntersectsUnitSquare(tri.p1.xyz - float3(vxlCoords), tri.p2.xyz - float3(vxlCoords), tri.p3.xyz - float3(vxlCoords));
+	float intersection = TriangleIntersectsUnitSquarePrecalcedOLDE(tri.p1.xyz - float3(vxlCoords), tri.p2.xyz - float3(vxlCoords), tri.p3.xyz - float3(vxlCoords), precalculatedNormalDividend);
 
 	if (abs(intersection) > 0)
 	{
+		uint vxlIndex = Index(vxl3dIndex);
 		IntersectionData intersectdat;
 		intersectdat.normalAndDistance = intersection;
 		intersectdat.voxelIndex = vxlIndex;
@@ -80,10 +81,9 @@ void CheckIntersectPreCalculated(FullTriangleData tri, uint3 vxl3dIndex, uint tr
 {
 	float3 vxlCoords = float3(vxl3dIndex);
 	float intersection = TriangleIntersectsUnitSquarePreCalculated(tri.p1.xyz - float3(vxlCoords), tri.p2.xyz - float3(vxlCoords), tri.p3.xyz - float3(vxlCoords), precalculatedNormalDividend);
-
 	float absIntersection = abs(intersection);
 	float fragIntersection = frac(intersection);
-	if (absIntersection > 0)
+	if (intersection > 0)
 	{
 		uint vxlIndex = Index(vxl3dIndex + uint3(0, 0, absIntersection));
 
@@ -97,10 +97,13 @@ void CheckIntersectPreCalculated(FullTriangleData tri, uint3 vxl3dIndex, uint tr
 
 
 
+
+
 //this gets run once for each triangle in the system
 [numthreads(1, 1, 1)]
 void CSRunIntersections(uint3 ind : SV_DispatchThreadID)
 {
+
 	FullTriangleData tri = GetTriangleFromIndex(ind.x);
     float3 minp = min3(tri.p1.xyz, tri.p2.xyz, tri.p3.xyz); //min(min(tri.p1.xyz, tri.p2.xyz), tri.p3.xyz);
     float3 maxp = max3(tri.p1.xyz, tri.p2.xyz, tri.p3.xyz); //max(max(tri.p1.xyz, tri.p2.xyz), tri.p3.xyz);
@@ -118,6 +121,11 @@ void CSRunIntersections(uint3 ind : SV_DispatchThreadID)
 		}
 	}
 }
+
+
+
+
+
   
 
 
