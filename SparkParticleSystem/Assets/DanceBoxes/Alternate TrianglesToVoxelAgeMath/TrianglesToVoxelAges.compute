@@ -1,0 +1,173 @@
+﻿#include "Assets/DanceBoxes/ComputeIncludes.cginc"
+#include "Assets/DanceBoxes/ComputeTriangleIncludesCustom.cginc"
+
+#pragma kernel CSRunIntersections
+
+struct FullTriangleData
+{
+	float4 p1;
+	float4 p2;
+	float4 p3;
+};
+
+struct IntersectionData
+{
+    float normalAndDistance;
+	uint voxelIndex;
+	uint triIndex;
+};
+
+StructuredBuffer<FullTriangleData> RTriangleVertexes;
+//StructuredBuffer<float4> RVertexPositions;
+AppendStructuredBuffer<IntersectionData> WAIntersections;
+
+float4 _Dimensions;
+
+float4 _InverseDimensions;// xyz=1/dim.xyz w= 1/(dim.x*dim.y)
+
+uint Index(uint3 coordid)
+{
+	return coordid.x + coordid.y * _Dimensions.x + coordid.z * _Dimensions.x * _Dimensions.y;
+}
+
+int3 Coord(float index)
+{
+	return int3(mod(index, _Dimensions.x), mod(floor(index * _InverseDimensions.x), _Dimensions.y), floor(index *_InverseDimensions.w));
+}
+
+float3 min3(float3 v1, float3 v2, float3 v3)
+{
+    float3 v0;
+    v0.x = min(min(v1.x, v2.x), v3.x);
+    v0.y = min(min(v1.y, v2.y), v3.y);
+    v0.z = min(min(v1.z, v2.z), v3.z);
+    return v0;
+}
+
+float3 max3(float3 v1, float3 v2, float3 v3)
+{
+    float3 v0;
+    v0.x = max(max(v1.x, v2.x), v3.x);
+    v0.y = max(max(v1.y, v2.y), v3.y);
+    v0.z = max(max(v1.z, v2.z), v3.z);
+    return v0;
+}
+
+
+FullTriangleData GetTriangleFromIndex(uint id)
+{
+    FullTriangleData tri = RTriangleVertexes[id];
+	return tri;
+}
+
+void CheckIntersect(FullTriangleData tri, uint3 vxl3dIndex, uint vxlIndex, uint triIndex)
+{
+    float3 vxlCoords = float3(vxl3dIndex);
+    float intersection = TriangleIntersectsUnitSquare(tri.p1.xyz - float3(vxlCoords), tri.p2.xyz - float3(vxlCoords), tri.p3.xyz - float3(vxlCoords));
+	
+    if (abs(intersection)>0)
+	{
+		IntersectionData intersectdat;
+        intersectdat.normalAndDistance = intersection;
+		intersectdat.voxelIndex = vxlIndex;
+		intersectdat.triIndex = triIndex;
+		WAIntersections.Append(intersectdat);
+	}
+}
+
+
+//this gets run once for each triangle in the system
+[numthreads(1, 1, 1)]
+void CSRunIntersections(uint3 ind : SV_DispatchThreadID)
+{
+	FullTriangleData tri = GetTriangleFromIndex(ind.x);
+    float3 minp = min3(tri.p1.xyz, tri.p2.xyz, tri.p3.xyz); //min(min(tri.p1.xyz, tri.p2.xyz), tri.p3.xyz);
+    float3 maxp = max3(tri.p1.xyz, tri.p2.xyz, tri.p3.xyz); //max(max(tri.p1.xyz, tri.p2.xyz), tri.p3.xyz);
+	maxp = min(ceil(maxp), _Dimensions.xyz);
+	minp = max(floor(minp), float3(0,0,0));
+
+	for (uint i = (uint)minp.x; i < (uint)maxp.x; i++)
+	{
+		for (uint j = (uint)minp.y; j < (uint)maxp.y; j++)
+		{
+            //in the future, doesnt need to check in the z direction probably; just do the casts once and then add the intersect depending on the normaldistance
+			for (uint k = (uint)minp.z; k < (uint)maxp.z; k++)
+			{
+				uint3 ijk = uint3(i, j, k);
+				uint voxelIndex = Index(ijk);
+				CheckIntersect(tri, ijk, voxelIndex, ind.x);
+			}
+		}
+	}
+}
+  
+
+
+#pragma kernel CSIntersectionsToPenPos
+
+StructuredBuffer<IntersectionData> RAIntersections;
+uint IntersectionCount;
+
+RWStructuredBuffer<float> WPenPos;
+
+//runs once for each voxel
+[numthreads(1,1,1)]
+void CSIntersectionsToPenPos(uint3 id : SV_DispatchThreadID)
+{
+	uint initialIndex = Index(id);
+
+    float currentClosestTri = -1;
+    float penDown = 0;
+
+	for (uint n = 0; n < IntersectionCount; n++)
+	{
+		if (RAIntersections[n].voxelIndex == initialIndex)
+		{
+             float penPosition = 10 * sign(-RAIntersections[n].normalAndDistance);
+			 float absDistance = abs(RAIntersections[n].normalAndDistance);
+             if (absDistance > currentClosestTri)
+             {
+                 currentClosestTri = absDistance;
+                 penDown = penPosition;
+             }
+		}
+	}
+
+	WPenPos[initialIndex] = penDown;
+}
+
+
+#pragma kernel CSPenposToVoxelAges
+
+StructuredBuffer<float> RPenPos;
+RWStructuredBuffer<float> WVoxelAgeBuffer;
+
+//runs once for each cube-row on the x,y grid
+[numthreads(1, 1, 1)]
+void CSPenposToVoxelAges(uint3 id : SV_DispatchThreadID)
+{
+	uint initialIndex = Index(id);
+	int3 coords = Coord(initialIndex);
+	int penDown = -1;
+
+	for (uint k = 0; k < (uint)_Dimensions.z; k++)
+	{
+		uint3 voxCoords = uint3(coords.x, coords.y, k);
+		uint voxIndex = Index(voxCoords);
+
+		float currentClosestTri = 0;
+		int localPenDown = penDown;
+
+
+
+		float reportedPenPos = RPenPos[voxIndex];
+
+		penDown = lerp(penDown, reportedPenPos, abs(sign(reportedPenPos)));//max(abs(reportedPenPos), abs(penDown))*sign(penDown);
+
+		localPenDown = max(penDown, localPenDown);//will maintain "pen down" status if there was a transition this frame
+
+
+		WVoxelAgeBuffer[voxIndex] = localPenDown; //localPenDown;
+	}
+}
+
