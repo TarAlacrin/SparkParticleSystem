@@ -121,6 +121,7 @@
     <Compile Include="Assets\PostProcessing\Runtime\Utils\MaterialFactory.cs" />
     <Compile Include="Assets\PostProcessing\Runtime\Utils\RenderTextureFactory.cs" />
     <Compile Include="Assets\PostProcessing\Utilities\CustomMotionTexture\ExampleWheelController.cs" />
+    <Compile Include="Assets\RotateWithMouse.cs" />
     <Compile Include="Assets\ShowHideUI.cs" />
     <Compile Include="Assets\SlowLerp.cs" />
     <Compile Include="Assets\TakeAShot.cs" />

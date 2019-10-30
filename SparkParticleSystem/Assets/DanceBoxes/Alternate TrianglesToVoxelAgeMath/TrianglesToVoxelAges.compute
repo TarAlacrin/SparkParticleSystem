@@ -114,7 +114,6 @@ void CSRunIntersectionsALTERNATE(uint3 ind)
 			{
 				uint3 ijk = uint3(i, j, k);
 				CheckIntersectALTERNATE(tri, ijk, ind.x, normalDividendValue);
-
 			}
 		}
 	}
@@ -126,8 +125,8 @@ void CSRunIntersections(uint3 ind : SV_DispatchThreadID)
 {
 
 	FullTriangleData tri = GetTriangleFromIndex(ind.x);
-    float3 minp = min3(tri.p1.xyz, tri.p2.xyz, tri.p3.xyz); //min(min(tri.p1.xyz, tri.p2.xyz), tri.p3.xyz);
-    float3 maxp = max3(tri.p1.xyz, tri.p2.xyz, tri.p3.xyz); //max(max(tri.p1.xyz, tri.p2.xyz), tri.p3.xyz);
+    float3 minp = min3(tri.p1.xyz, tri.p2.xyz, tri.p3.xyz); 
+    float3 maxp = max3(tri.p1.xyz, tri.p2.xyz, tri.p3.xyz); 
 	maxp = min(ceil(maxp), _Dimensions.xyz);
 	minp = max(floor(minp), float3(0,0,0));
 
@@ -209,7 +208,11 @@ void CSPenposToVoxelAges(uint3 id : SV_DispatchThreadID)
 
 		float reportedPenPos = RPenPos[voxIndex];
 
+		if (sign(penDown) == sign(reportedPenPos))
+			localPenDown = abs(reportedPenPos);
+
 		penDown = lerp(penDown, reportedPenPos, abs(sign(reportedPenPos)));//max(abs(reportedPenPos), abs(penDown))*sign(penDown);
+
 
 		localPenDown = max(penDown, localPenDown);//will maintain "pen down" status if there was a transition this frame
 

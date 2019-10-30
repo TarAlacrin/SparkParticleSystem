@@ -78,8 +78,12 @@ namespace DanceBoxes
 		{
 			triVertPosBuffers = parVertexPositionBuffers;
 			triangleCount = parVertexCount / 3;
-			triangleIntersectionBuffer[READ] = new ComputeBuffer(triangleCount*(DanceBoxManager.inst.totalVoxels), DanceBoxManager.inst.sizeOfIntersectionData, ComputeBufferType.Append);
-			triangleIntersectionBuffer[WRITE] = new ComputeBuffer(triangleCount*(DanceBoxManager.inst.totalVoxels), DanceBoxManager.inst.sizeOfIntersectionData, ComputeBufferType.Append);
+
+			int intersectionCount = (int)( (triangleCount * DanceBoxManager.inst.totalVoxels));
+			triangleIntersectionBuffer[READ] = new ComputeBuffer(intersectionCount, DanceBoxManager.inst.sizeOfIntersectionData, ComputeBufferType.Append);
+			triangleIntersectionBuffer[WRITE] = new ComputeBuffer(intersectionCount, DanceBoxManager.inst.sizeOfIntersectionData, ComputeBufferType.Append);
+			Debug.Log("INTERSECTION COUNT IS OFF THE CHART " + intersectionCount);
+
 			vertexCount = parVertexCount;
 			vertPosToCubeAgeCompute.SetInt("_MaxCountVertexBuffer", vertexCount);
 		}
@@ -128,7 +132,7 @@ namespace DanceBoxes
 		void DoPenDownCalculating()
 		{
 			int[] args = BufferTools.GetArgs(triangleIntersectionBuffer[READ], triangleIntersectionARGSBuffer);
-			//Debug.Log("numintersections: " + args[0]);
+			Debug.Log("numintersections: " + args[0]);
 			vertPosToCubeAgeCompute.SetInt("IntersectionCount", args[0]);
 			vertPosToCubeAgeCompute.SetBuffer(intrsct2penPosKernel, "RAIntersections", triangleIntersectionBuffer[READ]);
 			vertPosToCubeAgeCompute.SetBuffer(intrsct2penPosKernel, "WPenPos", penDownVoxelBuffer[WRITE]);
