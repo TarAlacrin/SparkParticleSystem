@@ -135,7 +135,7 @@ namespace DanceBoxes
 		void DoFillingVoxelGrid()
 		{
 			int[] args = BufferTools.GetArgs(triangleIntersectionBuffer[READ], triangleIntersectionARGSBuffer);
-			Debug.Log("numintersections: " + args[0]);
+			//Debug.Log("numintersections: " + args[0]);
 			vertPosToCubeAgeCompute.SetInt("IntersectionCount", args[0]);
 
 			vertPosToCubeAgeCompute.SetBuffer(secondKernel, "RTriangleVertexes", triVertPosBuffers[READ]);

@@ -21,7 +21,12 @@ Pass
 			#pragma geometry geom
             #pragma target 5.0
 			 
-            uniform AppendStructuredBuffer<float4> WATriVertexPositionBuffer : register(u1);
+			struct tridata {
+				float4 p1;
+				float4 p2;
+				float4 p3;
+			};
+            uniform AppendStructuredBuffer<tridata> WATriVertexPositionBuffer : register(u1);
 
 			struct APPDATA
 			{
@@ -53,7 +58,7 @@ Pass
 				vs.uv = IN.uv;
 				vs.col = IN.col;
 
-				WATriVertexPositionBuffer.Append(vs.worldPos);
+				//WATriVertexPositionBuffer.Append(vs.worldPos);
 
                 return vs;
             }
@@ -67,12 +72,16 @@ Pass
 				//tristream.Append(o);
 				//o.pos = input[2].pos;	o.uv = input[2].uv;		o.col = input[2].col;
 				//tristream.Append(o);
+				tridata t;
+				t.p1 = input[0].worldPos;
+				t.p2 = input[1].worldPos;
+				t.p3 = input[2].worldPos;
 
-
+				WATriVertexPositionBuffer.Append(t);
 				//WATriVertexPositionBuffer.Append(input[0].worldPos);
 				//WATriVertexPositionBuffer.Append(input[1].worldPos);
 				//WATriVertexPositionBuffer.Append(input[2].worldPos);
-				// 
+				 
 			}
  
 			float4 frag (g2f ps) : SV_TARGET

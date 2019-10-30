@@ -32,7 +32,7 @@ namespace DanceBoxes
 			vertexReciever = vertexPositionRecieverObject.GetComponent<IWantVertexPositions>();
 			mesh = this.gameObject.GetComponent<MeshFilter>().sharedMesh;
 			vertCount = mesh.triangles.Length;
-
+			mesh.MarkDynamic();
 			initData = new Vector4[vertCount]; 
 			
 			for (int ind = 0; ind < initData.Length; ind ++)
@@ -40,8 +40,8 @@ namespace DanceBoxes
 				initData[ind] = new Vector4(mesh.vertices[ind % mesh.vertexCount].x, mesh.vertices[ind % mesh.vertexCount].y, mesh.vertices[ind % mesh.vertexCount].z, ind);
 			}
 
-			triVertexPositionBuffer[READ] = new ComputeBuffer(vertCount, sizeof(float) * 4, ComputeBufferType.Append);
-			triVertexPositionBuffer[WRITE] = new ComputeBuffer(vertCount, sizeof(float) * 4, ComputeBufferType.Append);
+			triVertexPositionBuffer[READ] = new ComputeBuffer(vertCount/3, sizeof(float) * 4*3, ComputeBufferType.Append);
+			triVertexPositionBuffer[WRITE] = new ComputeBuffer(vertCount/3, sizeof(float) * 4*3, ComputeBufferType.Append);
 
 			triVertexPositionBuffer[READ].SetData(initData);
 			triVertexPositionBuffer[WRITE].SetData(initData);
@@ -91,13 +91,8 @@ namespace DanceBoxes
 			}
 
 			DoRender();
-
 		}
 
-
-		void LateUpdate()
-		{
-		}
 
 		void DoRender()
 		{
