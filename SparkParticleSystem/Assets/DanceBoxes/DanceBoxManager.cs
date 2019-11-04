@@ -9,7 +9,12 @@ namespace DanceBoxes
 		public static DanceBoxManager inst;
 
 		//128//512//1024//2048//4096//8192//16384//32768//65536//131072//262144//524288//1048576
-		public int singleDimensionCount = 8;
+		public int singleDimensionCount = 64;
+
+		[Space]
+		private int threadGroupSize = 64;
+		[Space]
+		public Transform sizeAdjuster = null;
 
 		public int captureFrametime = 20;
 
@@ -41,6 +46,12 @@ namespace DanceBoxes
 			}
 		}
 
+		public int totalVoxelsThreadGroup {
+			get	{
+				return GetThreadNumbers(totalVoxels);
+			}
+		}
+
 		public int sizeOfQuadData{
 			get{
 				return System.Runtime.InteropServices.Marshal.SizeOf<QuadData>();
@@ -60,10 +71,25 @@ namespace DanceBoxes
 
 		private void Awake()
 		{
+			if (sizeAdjuster != null)
+				sizeAdjuster.localScale = voxelDimensions;
 			//Debug.Log("sizeOfVOXEL:" + sizeOfVoxelData + " SIZE OF QUAD?:" + sizeOfQuadData + " sizeofflot: " + sizeof(float));
 			DanceBoxManager.inst = this;
 			if(captureFrametime >0)
 			Time.captureFramerate = captureFrametime;
+		}
+
+		public int GetThreadNumbers(int inDesiredCount)
+		{
+
+			float countCalc = inDesiredCount;
+			countCalc /= (float)threadGroupSize;
+			if (countCalc != Mathf.Round(countCalc))
+			{
+				Debug.LogError("HEY! IM TRYING TO INVOKE PART OF A THREADGROUP: " + countCalc + " IS THE NUMBER OF THREADGROUPS IM TRYING TO INVOKE");
+			}
+
+			return inDesiredCount / threadGroupSize;
 		}
 
 	}

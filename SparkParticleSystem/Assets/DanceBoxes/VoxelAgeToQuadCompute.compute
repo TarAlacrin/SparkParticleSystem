@@ -1,5 +1,8 @@
 ﻿// Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel CSMain
+
+#include "Assets/DanceBoxes/ComputeIncludes.cginc"
+
 float4 _Dimensions;
 struct QuadOutputData {
 	float3 position;
@@ -10,10 +13,6 @@ struct QuadOutputData {
 StructuredBuffer<float> RCubeAges;
 AppendStructuredBuffer<QuadOutputData> WQuadPositionAndAgeBuffer;
 
-float mod(float x, float m)
-{
-	return x - m * floor(x / m);
-}
 
 uint Index(uint3 coordid)
 {

@@ -122,8 +122,8 @@ namespace DanceBoxes
 			triangleIntersectionBuffer[WRITE].SetCounterValue(0);
 			vertPosToCubeAgeCompute.SetBuffer(intersectionsKernel, "WAIntersections", triangleIntersectionBuffer[WRITE]);
 
-			if (debug)
-				BufferTools.DebugComputeRaw<Vector4>(triVertPosBuffers[READ], "unsorted vertex pos check", vertexCount);
+			//if (debug)
+			//	BufferTools.DebugComputeRaw<Vector4>(triVertPosBuffers[READ], "unsorted vertex pos check", vertexCount);
 
 			vertPosToCubeAgeCompute.Dispatch(intersectionsKernel, triangleCount, 1, 1);
 
@@ -131,15 +131,18 @@ namespace DanceBoxes
 
 		void DoPenDownCalculating()
 		{
-			int[] args = BufferTools.GetArgs(triangleIntersectionBuffer[READ], triangleIntersectionARGSBuffer);
-			Debug.Log("numintersections: " + args[0]);
-			vertPosToCubeAgeCompute.SetInt("IntersectionCount", args[0]);
+
+			ComputeBuffer.CopyCount(triangleIntersectionBuffer[READ], triangleIntersectionARGSBuffer, 0);
+
+			//int[] args = BufferTools.GetArgs(triangleIntersectionBuffer[READ], triangleIntersectionARGSBuffer);
+			//Debug.Log("numintersections: " + args[0]);
+			vertPosToCubeAgeCompute.SetBuffer(intrsct2penPosKernel, "RArgsIntersectionCount", triangleIntersectionARGSBuffer);
 			vertPosToCubeAgeCompute.SetBuffer(intrsct2penPosKernel, "RAIntersections", triangleIntersectionBuffer[READ]);
 			vertPosToCubeAgeCompute.SetBuffer(intrsct2penPosKernel, "WPenPos", penDownVoxelBuffer[WRITE]);
 
-			vertPosToCubeAgeCompute.Dispatch(intrsct2penPosKernel, (int)(DanceBoxManager.inst.totalVoxels), 1, 1);
+			vertPosToCubeAgeCompute.Dispatch(intrsct2penPosKernel, (int)(DanceBoxManager.inst.totalVoxelsThreadGroup), 1, 1);
 			//if (debug)
-			//	BufferTools.DebugComputeRaw<float>(filledVoxelGridBuffer[READ], " SHOULD HAVE TOTALINTERSECTION COUNTS IN ALL TINGS", (int)DanceBoxManager.inst.voxelDimensions.x);
+			//	BufferTools.DebugComputeGrid<float>(penDownVoxelBuffer[READ], " PEN DOWN DATA", (int)DanceBoxManager.inst.voxelDimensions.x);
 		}
 
 		void DoFillingVoxelGrid()
@@ -147,9 +150,9 @@ namespace DanceBoxes
 			vertPosToCubeAgeCompute.SetBuffer(penpos2VxlAgesKernel, "RPenPos", penDownVoxelBuffer[READ]);
 			vertPosToCubeAgeCompute.SetBuffer(penpos2VxlAgesKernel, "WVoxelAgeBuffer", filledVoxelGridBuffer[WRITE]);
 
-			vertPosToCubeAgeCompute.Dispatch(penpos2VxlAgesKernel, (int)(DanceBoxManager.inst.voxelDimensions.x * DanceBoxManager.inst.voxelDimensions.y), 1, 1);
-			//if (debug)
-			//	BufferTools.DebugComputeRaw<float>(filledVoxelGridBuffer[READ], " SHOULD HAVE TOTALINTERSECTION COUNTS IN ALL TINGS", (int)DanceBoxManager.inst.voxelDimensions.x);
+			vertPosToCubeAgeCompute.Dispatch(penpos2VxlAgesKernel, DanceBoxManager.inst.GetThreadNumbers((int)(DanceBoxManager.inst.voxelDimensions.x * DanceBoxManager.inst.voxelDimensions.y)), 1, 1);
+			if (debug)
+				BufferTools.DebugComputeGrid<float>(filledVoxelGridBuffer[READ], " FILLED", (int)DanceBoxManager.inst.voxelDimensions.x);
 		}
 
 		private void OnDisable()

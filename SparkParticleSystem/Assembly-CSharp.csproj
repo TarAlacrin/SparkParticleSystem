@@ -75,6 +75,7 @@
     <Compile Include="Assets\DanceBoxes\VoxelAgesToQuadData.cs" />
     <Compile Include="Assets\DontDestroyOnLoad.cs" />
     <Compile Include="Assets\Extensions.cs" />
+    <Compile Include="Assets\FPSAverager.cs" />
     <Compile Include="Assets\HoldEscapeToQuit.cs" />
     <Compile Include="Assets\PostProcessing\Runtime\Attributes\GetSetAttribute.cs" />
     <Compile Include="Assets\PostProcessing\Runtime\Attributes\MinAttribute.cs" />

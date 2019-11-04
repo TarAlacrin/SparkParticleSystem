@@ -2,7 +2,6 @@
 #include "Assets/DanceBoxes/ComputeTriangleIncludesCustom.cginc"
 
 #pragma kernel CSRunIntersections
-
 struct FullTriangleData
 {
 	float4 p1;
@@ -18,7 +17,6 @@ struct IntersectionData
 };
 
 StructuredBuffer<FullTriangleData> RTriangleVertexes;
-//StructuredBuffer<float4> RVertexPositions;
 AppendStructuredBuffer<IntersectionData> WAIntersections;
 
 float4 _Dimensions;
@@ -152,12 +150,12 @@ void CSRunIntersections(uint3 ind : SV_DispatchThreadID)
 #pragma kernel CSIntersectionsToPenPos
 
 StructuredBuffer<IntersectionData> RAIntersections;
-uint IntersectionCount;
+StructuredBuffer<uint> RArgsIntersectionCount;
 
 RWStructuredBuffer<float> WPenPos;
 
 //runs once for each voxel
-[numthreads(1,1,1)]
+[numthreads(THREADSIZE,1,1)]
 void CSIntersectionsToPenPos(uint3 id : SV_DispatchThreadID)
 {
 	uint initialIndex = Index(id);
@@ -165,7 +163,7 @@ void CSIntersectionsToPenPos(uint3 id : SV_DispatchThreadID)
     float currentClosestTri = -1;
     float penDown = 0;
 
-	for (uint n = 0; n < IntersectionCount; n++)
+	for (uint n = 0; n < RArgsIntersectionCount[0]; n++)
 	{
 		if (RAIntersections[n].voxelIndex == initialIndex)
 		{
@@ -189,7 +187,7 @@ StructuredBuffer<float> RPenPos;
 RWStructuredBuffer<float> WVoxelAgeBuffer;
 
 //runs once for each cube-row on the x,y grid
-[numthreads(1, 1, 1)]
+[numthreads(THREADSIZE, 1, 1)]
 void CSPenposToVoxelAges(uint3 id : SV_DispatchThreadID)
 {
 	uint initialIndex = Index(id);

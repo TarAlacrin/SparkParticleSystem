@@ -25,6 +25,7 @@ public static class BufferTools
 	}
 
 
+
 	public static void DebugComputeRaw<T>(ComputeBuffer computeToDebug, string name, int length)
 	{
 		T[] data = new T[length];
@@ -42,10 +43,9 @@ public static class BufferTools
 
 	public static void DebugComputeGrid<T>(ComputeBuffer computeToDebug, string name, int dims)
 	{
-		return;
 		T[] data = new T[dims* dims* dims];
 		 
-		//computeToDebug.GetData(data);
+		computeToDebug.GetData(data);
 
 		string todebug = name + "ARRY: " + " @f:";
 		for (int k = 0; k < dims; k++)
@@ -62,7 +62,7 @@ public static class BufferTools
 				}
 			}
 		}
-		//Debug.LogWarning(todebug);
+		Debug.LogWarning(todebug);
 	}
 
 }
