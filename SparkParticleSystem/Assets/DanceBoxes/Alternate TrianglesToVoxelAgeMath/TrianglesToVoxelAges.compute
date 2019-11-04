@@ -2,6 +2,7 @@
 #include "Assets/DanceBoxes/ComputeTriangleIncludesCustom.cginc"
 
 #pragma kernel CSRunIntersections
+
 struct FullTriangleData
 {
 	float4 p1;
@@ -17,6 +18,7 @@ struct IntersectionData
 };
 
 StructuredBuffer<FullTriangleData> RTriangleVertexes;
+//StructuredBuffer<float4> RVertexPositions;
 AppendStructuredBuffer<IntersectionData> WAIntersections;
 
 float4 _Dimensions;

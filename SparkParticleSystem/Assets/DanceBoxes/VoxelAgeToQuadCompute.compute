@@ -36,7 +36,7 @@ void OutputQuad(float3 normal, int3 coord, float age)
 
 
 
-[numthreads(1,1,1)]
+[numthreads(THREADSIZE,1,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
 	uint index = Index(id);
