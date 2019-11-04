@@ -79,7 +79,7 @@ namespace DanceBoxes
 			triVertPosBuffers = parVertexPositionBuffers;
 			triangleCount = parVertexCount / 3;
 
-			int intersectionCount = (int)( (triangleCount * DanceBoxManager.inst.totalVoxelsThreadGroup));
+			int intersectionCount = (int)( (triangleCount * DanceBoxManager.inst.singleDimensionCount));
 			triangleIntersectionBuffer[READ] = new ComputeBuffer(intersectionCount, DanceBoxManager.inst.sizeOfIntersectionData, ComputeBufferType.Append);
 			triangleIntersectionBuffer[WRITE] = new ComputeBuffer(intersectionCount, DanceBoxManager.inst.sizeOfIntersectionData, ComputeBufferType.Append);
 			Debug.Log("INTERSECTION COUNT IS OFF THE CHART " + intersectionCount);
