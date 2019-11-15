@@ -43,12 +43,12 @@ namespace DanceBoxes
 		void Update()
 		{
 			voxelAgeGenerator.SetBuffer(vgkernal, "WVoxelAgeBuffer", voxelAgeBuffer[WRITE]);
-			voxelAgeGenerator.Dispatch(vgkernal, DanceBoxManager.inst.totalVoxels, 1, 1);// DanceBoxManager.inst.voxelDimX, DanceBoxManager.inst.voxelDimY, DanceBoxManager.inst.voxelDimZ);
+			voxelAgeGenerator.Dispatch(vgkernal, DanceBoxManager.inst.totalVoxelsThreadGroup, 1, 1);// DanceBoxManager.inst.voxelDimX, DanceBoxManager.inst.voxelDimY, DanceBoxManager.inst.voxelDimZ);
 
 			if (debug)
 			{
 				Debug.Log("Running");
-				//BufferTools.DebugCompute<float>(voxelAgeBuffer[READ], "output voxel ages READ", DanceBoxManager.inst.singleDimensionCount);
+				BufferTools.DebugComputeGrid<float>(voxelAgeBuffer[READ], "output voxel ages READ", DanceBoxManager.inst.singleDimensionCount);
 			}
 
 			voxelAgeRecipient.GiveSwappedVoxelAgeBuffer(voxelAgeBuffer[READ]);

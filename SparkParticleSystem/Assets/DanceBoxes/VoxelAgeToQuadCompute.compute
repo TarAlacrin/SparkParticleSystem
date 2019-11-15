@@ -52,7 +52,7 @@ void CSMain (uint3 id : SV_DispatchThreadID)
             OutputQuad(float3(0, -1, 0), coords, age);
         if (coords.z == 0 || RCubeAges[Index(coords - uint3(0, 0, 1))] <= 0)
             OutputQuad(float3(0, 0, -1), coords, age);
-
+         
         if (coords.x == _Dimensions.x - 1 || RCubeAges[Index(coords + uint3(1, 0, 0))] <= 0)
             OutputQuad(float3(1, 0, 0), coords, age);
         if (coords.y == _Dimensions.y - 1 || RCubeAges[Index(coords + uint3(0, 1, 0))] <= 0)

@@ -1,14 +1,10 @@
 ﻿// Each #kernel tells which fu nction to compile; you can have many kernels
 #pragma kernel CSMain
+#include "Assets/DanceBoxes/ComputeIncludes.cginc"
 
 RWStructuredBuffer<float> WVoxelAgeBuffer;
 float4 _Dimensions;
  
-float mod(float x, float m)
-{
-    return x - m * floor(x / m);
-}
-
 uint Index(uint3 coordid)
 {
     return coordid.x + coordid.y * _Dimensions.x + coordid.z * _Dimensions.x * _Dimensions.y;
@@ -20,7 +16,7 @@ int3 Coord(float index)
 }
 
 
-[numthreads(1, 1, 1)]
+[numthreads(THREADSIZE, 1, 1)]
 void CSMain(uint3 id : SV_DispatchThreadID)
 {
     uint index = Index(id);

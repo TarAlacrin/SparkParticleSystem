@@ -42,16 +42,22 @@ namespace DanceBoxes
 
 		void CubeAgeToQuad(ComputeBuffer voxelAgeStatesREAD)
 		{
-			if (debug)
-			{
-				BufferTools.DebugComputeGrid<float>(voxelAgeStatesREAD, "voxel Age state READ - ", DanceBoxManager.inst.singleDimensionCount);
-			}
+			//if (debug)
+			//{
+			//	BufferTools.DebugComputeGrid<float>(voxelAgeStatesREAD, "voxel Age state READ - ", DanceBoxManager.inst.singleDimensionCount);
+			//}
 
 			cubeAgeToQuadDataShader.SetVector("_Dimensions", DanceBoxManager.inst.voxelDimensions4);
 			cubeAgeToQuadDataShader.SetBuffer(ca2qdkernal, "RCubeAges", voxelAgeStatesREAD);
 			cubeAgeToQuadDataShader.SetBuffer(ca2qdkernal, "WQuadPositionAndAgeBuffer", quadDataBuffer[WRITE]);
 			quadDataBuffer[WRITE].SetCounterValue(0);//erases data from previous frame
 			cubeAgeToQuadDataShader.Dispatch(ca2qdkernal, DanceBoxManager.inst.totalVoxelsThreadGroup, 1,1);
+
+
+			if (debug)
+			{
+				BufferTools.DebugComputeRaw<QuadData>(quadDataBuffer[READ], "outquadata - ", DanceBoxManager.inst.singleDimensionCount);
+			}
 
 			quadDataOutput.GiveQuadData(quadDataBuffer);
 		}

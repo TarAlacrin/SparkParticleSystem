@@ -29,7 +29,8 @@ namespace DanceBoxes
 			if(quadDataBuffer != null)
 			{
 				ComputeBuffer.CopyCount(quadDataBuffer[READ], quadArgBuffer,0);
-				//int[] quadargs = BufferTools.GetArgs(quadDataBuffer[READ], quadArgBuffer);
+				int[] quadargs = BufferTools.GetArgs(quadDataBuffer[READ], quadArgBuffer);
+				Debug.Log("QUADCOUNT? : " + quadargs[0] + " , 1, " + quadargs[1]);
 				material.SetPass(0);
 				material.SetBuffer("_Data", quadDataBuffer[READ]);
 
