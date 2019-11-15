@@ -71,7 +71,6 @@
     <Compile Include="Assets\DanceBoxes\QuadDataToRenderer.cs" />
     <Compile Include="Assets\DanceBoxes\VertexPositionGrabber\CameraTestRenderer.cs" />
     <Compile Include="Assets\DanceBoxes\VertexPositionGrabber\VertexShaderToBuffer.cs" />
-    <Compile Include="Assets\DanceBoxes\VertexPositionsToCubeAgeHandler.cs" />
     <Compile Include="Assets\DanceBoxes\VoxelAgesToQuadData.cs" />
     <Compile Include="Assets\DontDestroyOnLoad.cs" />
     <Compile Include="Assets\Extensions.cs" />
@@ -128,7 +127,6 @@
     <Compile Include="Assets\TakeAShot.cs" />
     <None Include="Assets\PostProcessing\Resources\Shaders\DepthOfField.shader" />
     <None Include="Assets\DanceBoxes\Alternate TrianglesToVoxelAgeMath\TrianglesToVoxelAges.compute" />
-    <None Include="Assets\DanceBoxes\VertexToVoxelAges.compute" />
     <None Include="Assets\PostProcessing\Resources\Shaders\MotionBlur.cginc" />
     <None Include="Assets\PostProcessing\Resources\Shaders\Fog.shader" />
     <None Include="Assets\PostProcessing\Editor Resources\Monitors\ParadeRender.shader" />

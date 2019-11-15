@@ -18,7 +18,6 @@ namespace DanceBoxes
 
 
 		ComputeBuffer[] triVertPosBuffers;
-		ComputeBuffer rawVertexPositionARGSBuffer;
 
 		ComputeBuffer[] filledVoxelGridBuffer = new ComputeBuffer[2];
 
@@ -66,7 +65,8 @@ namespace DanceBoxes
 			penDownVoxelBuffer[READ] = new ComputeBuffer(DanceBoxManager.inst.totalVoxels, sizeof(float), ComputeBufferType.Default);
 
 			triangleIntersectionARGSBuffer = new ComputeBuffer(4, sizeof(int), ComputeBufferType.IndirectArguments);
-			rawVertexPositionARGSBuffer = new ComputeBuffer(4, sizeof(int), ComputeBufferType.IndirectArguments);
+			int[] argdata = new int[] { 0, 1, 0, 0 };
+			triangleIntersectionARGSBuffer.SetData(argdata);
 
 			voxelAgeRecipient = voxelAgeRecipientObject.GetComponent<IWantVoxelAges>();
 			vertPosToCubeAgeCompute.SetVector("_Dimensions", DanceBoxManager.inst.voxelDimensions4);
@@ -159,9 +159,7 @@ namespace DanceBoxes
 			triangleIntersectionBuffer[WRITE].Dispose();
 			penDownVoxelBuffer[READ].Dispose();
 			penDownVoxelBuffer[WRITE].Dispose();
-			//triangleBuffer.Dispose();
 			triangleIntersectionARGSBuffer.Dispose();
-			rawVertexPositionARGSBuffer.Dispose();
 		}
 
 
