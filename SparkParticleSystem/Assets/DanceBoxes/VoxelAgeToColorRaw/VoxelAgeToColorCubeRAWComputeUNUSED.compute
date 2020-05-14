@@ -9,19 +9,20 @@ struct QuadOutputData {
 	float3 normal;
 	float age;
 };
-
 StructuredBuffer<float> RCubeAges;
 AppendStructuredBuffer<QuadOutputData> WQuadPositionAndAgeBuffer;
 
-float _TIMETIME;
+
+
 
 
 void OutputQuad(float3 normal, int3 coord, float age)
 {
 	QuadOutputData output;
-	output.age = _TIMETIME; //age;
+	output.age = age; //age;
+	output.position = coord + normal * 0.5f;
 	output.normal = normal;
-	output.position = coord + output.normal*0.5f;
+
 	WQuadPositionAndAgeBuffer.Append(output);
 }
 

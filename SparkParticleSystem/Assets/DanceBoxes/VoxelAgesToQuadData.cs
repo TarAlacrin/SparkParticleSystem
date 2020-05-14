@@ -54,7 +54,7 @@ namespace DanceBoxes
 
 			cubeAgeToQuadDataShader.SetVector("_Dimensions", DanceBoxManager.inst.voxelDimensions4);
 			cubeAgeToQuadDataShader.SetVector("_InvDimensions", DanceBoxManager.inst.inverseVoxelDimensions4);
-
+			cubeAgeToQuadDataShader.SetFloat("_TIMETIME", Time.time);
 			cubeAgeToQuadDataShader.SetBuffer(ca2qdkernal, "RCubeAges", voxelAgeStatesREAD);
 			cubeAgeToQuadDataShader.SetBuffer(ca2qdkernal, "WQuadPositionAndAgeBuffer", quadDataBuffer[WRITE]);
 

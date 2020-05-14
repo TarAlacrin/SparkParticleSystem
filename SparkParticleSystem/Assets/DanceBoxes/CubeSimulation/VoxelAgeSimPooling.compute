@@ -11,20 +11,21 @@ RWStructuredBuffer<float> WCubeAges;
 float _DeltaTime;
 
 
-bool CheckCoordValid(int3 coords)
+float CheckCoordValid(int3 coords)
 {
 	float sizeCheck = ceil(saturate(coords.x - _Dimensions.x + 1) + saturate(coords.y - _Dimensions.y + 1) + saturate(coords.z - _Dimensions.z + 1));
 	sizeCheck += saturate(1 - coords.x) + saturate(1 - coords.y) + saturate(1 - coords.z);
-	return sizeCheck == 0;
+	return 1 - saturate(sizeCheck);//originally returned a bool of sizeCheck ==0;
 }
 
 float SafeGetOldAge(int3 coords)
 {
 	return ROldCubeAges[ClampedIndex(coords)];
-	//if (CheckCoordValid(coords))
+	//my testing showed that this method of getting safe old age was almost the same level of performance, however, because of branching if statements, I chose to go with the other.
+	//if (CheckCoordValid(coords) == 1f)
 	//	return ROldCubeAges[Index(coords)];
 	//else
-	//	return 0;
+	//	return 0; 
 }
 
 float ageFromPooling(int3 coords)
@@ -41,22 +42,17 @@ float ageFromPooling(int3 coords)
 [numthreads(THREADSIZE, 1, 1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
-    // TODO: insert actual code here!
 	uint index = Index(id);
 	int3 coords = Coord(index);
 	float newage = RNewCubeAges[index];
 
+	float oldage = SafeGetOldAge(coords);
 
-	int3 oldcoords = coords + int3(0, 1, 0);
+	int3 elevatedCoords = coords + int3(0, 1, 0);
 
-	float oldage = SafeGetOldAge(oldcoords) - _DeltaTime * 1.0;
+	float elevatedAge = SafeGetOldAge(elevatedCoords);
 
-
-	if (coords.y == 0)//this is what will do the pooling
-	{
-		//oldage = max(oldage, ageFromPooling(coords) - _DeltaTime * 1.0);
-	}
-
+	oldage = /*0.5*oldage + */ elevatedAge - _DeltaTime;//lerp(oldage, elevatedAge - _DeltaTime, 0.5);
 
 	WCubeAges[index] = saturate(saturate(oldage) + saturate(newage));
 }
