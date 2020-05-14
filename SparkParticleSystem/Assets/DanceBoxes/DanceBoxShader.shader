@@ -59,7 +59,7 @@ Shader "SDnBshades/DanceBox"
 			OUT.pos = mul (UNITY_MATRIX_VP, float4(worldPos,1.0f));
 			OUT.id = id;
 			OUT.col = lerp(_DeadColor, _Color, _Data[id].age*0.1f);
-			//should move tangent and binormal calcs to here.
+			//TODO should move tangent and binormal calcs to here.
 			return OUT;
 		}
 		
@@ -73,7 +73,13 @@ Shader "SDnBshades/DanceBox"
 		void geom(point v2g IN[1], inout TriangleStream<g2f> outStream)
 		{
 			g2f OUT;
-			OUT.colo = (saturate(_Data[IN[0].id].age)*0.5f+0.5f)*float4(abs(_Data[IN[0].id].normal),1)*(0.05*cos(IN[0].id*0.27)+0.95); //IN[0].col;
+			OUT.colo = (saturate(_Data[IN[0].id].age*0.5f)+0.1f)*float4(abs(_Data[IN[0].id].normal), 1);//*(0.05*cos(IN[0].id*0.27)+0.95); //IN[0].col;
+			
+			//float colorTimeTest = 0; //_Data[IN[0].id].age - _TIMETIME;
+
+
+			//OUT.colo =  float4(saturate(-colorTimeTest)*10, saturate(-colorTimeTest * 10-1), ceil(saturate(colorTimeTest)),1);
+
 			float3 up = normalize(lerp(float3(0, 0, 1), float3(0, 1, 0), saturate(ceil(length(abs(_Data[IN[0].id].normal) - float3(0, 1, 0)) )) ));
 			float3 right = normalize( cross(up, _Data[IN[0].id].normal));
 			float4 binormal = mul(UNITY_MATRIX_VP, float4(up, 0)*0.5f*_Size);

@@ -3,18 +3,7 @@
 #include "Assets/DanceBoxes/ComputeIncludes.cginc"
 
 RWStructuredBuffer<float> WVoxelAgeBuffer;
-float4 _Dimensions;
  
-uint Index(uint3 coordid)
-{
-    return coordid.x + coordid.y * _Dimensions.x + coordid.z * _Dimensions.x * _Dimensions.y;
-}
-
-int3 Coord(float index)
-{
-    return int3(mod(index, _Dimensions.x), mod(floor(index / _Dimensions.x), _Dimensions.y), floor(index / (_Dimensions.x * _Dimensions.y)));
-}
-
 
 [numthreads(THREADSIZE, 1, 1)]
 void CSMain(uint3 id : SV_DispatchThreadID)

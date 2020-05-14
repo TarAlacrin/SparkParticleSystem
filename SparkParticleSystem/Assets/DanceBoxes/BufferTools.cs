@@ -15,6 +15,29 @@ public static class BufferTools
 		buffer[WRITE] = tmp;
 	}
 
+
+	public static void CycleUp(ComputeBuffer[] buffer)
+	{
+		int maxIndx = buffer.Length - 1;
+		ComputeBuffer tmp = buffer[maxIndx]; 
+		for (int i = 0; i < maxIndx; i++)
+			buffer[maxIndx-i] = buffer[maxIndx-i -1];
+
+		buffer[0] = tmp;
+	}
+
+	public static void CycleDown(ComputeBuffer[] buffer)
+	{
+		int maxIndx = buffer.Length - 1;
+		ComputeBuffer tmp = buffer[0];
+		for (int i = 0; i < maxIndx; i++)
+			buffer[i] = buffer[i + 1];
+
+		buffer[maxIndx] = tmp;
+	}
+
+
+
 	public static int[] GetArgs(ComputeBuffer compOBuffToCheck, ComputeBuffer pargsBuffer)
 	{
 		int[] args = new int[] { 0, 1, 0, 0 };

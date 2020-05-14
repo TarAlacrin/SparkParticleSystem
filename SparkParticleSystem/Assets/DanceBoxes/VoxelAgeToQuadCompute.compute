@@ -3,7 +3,6 @@
 
 #include "Assets/DanceBoxes/ComputeIncludes.cginc"
 
-float4 _Dimensions;
 struct QuadOutputData {
 	float3 position;
 	float3 normal;
@@ -13,17 +12,6 @@ struct QuadOutputData {
 StructuredBuffer<float> RCubeAges;
 AppendStructuredBuffer<QuadOutputData> WQuadPositionAndAgeBuffer;
 
-
-uint Index(uint3 coordid)
-{
-	return coordid.x + coordid.y*_Dimensions.x + coordid.z*_Dimensions.x*_Dimensions.y;
-}
-
-int3 Coord(float index)
-{
-    //return int3(floor(index / (_Dimensions.x * _Dimensions.y)), mod(floor(index / _Dimensions.x), _Dimensions.y), mod(index, _Dimensions.x));
-    return int3(mod(index, _Dimensions.x), mod(floor(index / _Dimensions.x), _Dimensions.y), floor(index / (_Dimensions.x*_Dimensions.y) ) );
-}
 
 void OutputQuad(float3 normal, int3 coord, float age)
 {
@@ -35,6 +23,26 @@ void OutputQuad(float3 normal, int3 coord, float age)
 }
 
 
+void QuadProducerDefault(uint index, int3 coords, float age)
+{
+	if (age > 0)
+	{
+		if (coords.x == 0 || RCubeAges[Index(coords - uint3(1, 0, 0))] <= 0)
+			OutputQuad(float3(-1, 0, 0), coords, age);
+		if (coords.y == 0 || RCubeAges[Index(coords - uint3(0, 1, 0))] <= 0)
+			OutputQuad(float3(0, -1, 0), coords, age);
+		if (coords.z == 0 || RCubeAges[Index(coords - uint3(0, 0, 1))] <= 0)
+			OutputQuad(float3(0, 0, -1), coords, age);
+
+		if (coords.x == _Dimensions.x - 1 || RCubeAges[Index(coords + uint3(1, 0, 0))] <= 0)
+			OutputQuad(float3(1, 0, 0), coords, age);
+		if (coords.y == _Dimensions.y - 1 || RCubeAges[Index(coords + uint3(0, 1, 0))] <= 0)
+			OutputQuad(float3(0, 1, 0), coords, age);
+		if (coords.z == _Dimensions.z - 1 || RCubeAges[Index(coords + uint3(0, 0, 1))] <= 0)
+			OutputQuad(float3(0, 0, 1), coords, age);
+	}
+
+}
 
 [numthreads(THREADSIZE,1,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
@@ -44,21 +52,6 @@ void CSMain (uint3 id : SV_DispatchThreadID)
 
 	float age = RCubeAges[index];
 
-	if (age > 0)
-	{
-        if (coords.x == 0 || RCubeAges[Index(coords - uint3(1, 0, 0))] <= 0)
-            OutputQuad(float3(-1, 0, 0), coords, age);
-        if (coords.y == 0 || RCubeAges[Index(coords - uint3(0, 1, 0))] <= 0)
-            OutputQuad(float3(0, -1, 0), coords, age);
-        if (coords.z == 0 || RCubeAges[Index(coords - uint3(0, 0, 1))] <= 0)
-            OutputQuad(float3(0, 0, -1), coords, age);
-         
-        if (coords.x == _Dimensions.x - 1 || RCubeAges[Index(coords + uint3(1, 0, 0))] <= 0)
-            OutputQuad(float3(1, 0, 0), coords, age);
-        if (coords.y == _Dimensions.y - 1 || RCubeAges[Index(coords + uint3(0, 1, 0))] <= 0)
-            OutputQuad(float3(0, 1, 0), coords, age);
-        if (coords.z == _Dimensions.z - 1 || RCubeAges[Index(coords + uint3(0, 0, 1))] <= 0)
-            OutputQuad(float3(0, 0, 1), coords, age);
-    }
+	QuadProducerDefault(index, coords, age);
 } 
 

@@ -1,0 +1,163 @@
+fileFormatVersion: 2
+guid: 9c9cb6226ac80ee4183a43e3a020ad4a
+ModelImporter:
+  serializedVersion: 23
+  fileIDToRecycleName:
+    100000: bip
+    100002: bip Head
+    100004: bip L Calf
+    100006: bip L Clavicle
+    100008: bip L Finger0
+    100010: bip L Finger01
+    100012: bip L Finger1
+    100014: bip L Finger11
+    100016: bip L Foot
+    100018: bip L Forearm
+    100020: bip L Hand
+    100022: bip L Thigh
+    100024: bip L Toe0
+    100026: bip L UpperArm
+    100028: bip Neck
+    100030: bip Pelvis
+    100032: bip R Calf
+    100034: bip R Clavicle
+    100036: bip R Finger0
+    100038: bip R Finger01
+    100040: bip R Finger1
+    100042: bip R Finger11
+    100044: bip R Foot
+    100046: bip R Forearm
+    100048: bip R Hand
+    100050: bip R Thigh
+    100052: bip R Toe0
+    100054: bip R UpperArm
+    100056: bip Spine
+    100058: bip Spine1
+    100060: //RootNode
+    100062: lpMaleG
+    100064: rig_CharRoot
+    400000: bip
+    400002: bip Head
+    400004: bip L Calf
+    400006: bip L Clavicle
+    400008: bip L Finger0
+    400010: bip L Finger01
+    400012: bip L Finger1
+    400014: bip L Finger11
+    400016: bip L Foot
+    400018: bip L Forearm
+    400020: bip L Hand
+    400022: bip L Thigh
+    400024: bip L Toe0
+    400026: bip L UpperArm
+    400028: bip Neck
+    400030: bip Pelvis
+    400032: bip R Calf
+    400034: bip R Clavicle
+    400036: bip R Finger0
+    400038: bip R Finger01
+    400040: bip R Finger1
+    400042: bip R Finger11
+    400044: bip R Foot
+    400046: bip R Forearm
+    400048: bip R Hand
+    400050: bip R Thigh
+    400052: bip R Toe0
+    400054: bip R UpperArm
+    400056: bip Spine
+    400058: bip Spine1
+    400060: //RootNode
+    400062: lpMaleG
+    400064: rig_CharRoot
+    2100000: peopleColors
+    4300000: lpMaleG
+    7400000: Take 001
+    7400002: mixamo.com
+    9500000: //RootNode
+    13700000: lpMaleG
+  externalObjects: {}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+    previousCalculatedGlobalScale: 0.01
+    hasPreviousCalculatedGlobalScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

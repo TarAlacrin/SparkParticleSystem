@@ -1,0 +1,30 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+#include "Assets/DanceBoxes/ComputeIncludes.cginc"
+
+int _OneUnitSize; //ind0
+float _FillValue; //ind1
+
+//int2 _UnitSize_FillValue;
+
+struct QuadOutputData {
+	float3 position;
+	float3 normal;
+	float age;
+};
+
+RWStructuredBuffer<QuadOutputData> WClearBuffer;
+
+[numthreads(THREADSIZE,1,1)]
+void CSMain (uint id : SV_DispatchThreadID)
+{
+	QuadOutputData qod;
+	qod.position = 0;
+	qod.normal = 0;
+	qod.age = 0;
+	WClearBuffer[id] = qod;
+} 
+
+
+

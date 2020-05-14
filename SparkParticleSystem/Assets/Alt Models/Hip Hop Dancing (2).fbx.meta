@@ -1,0 +1,179 @@
+fileFormatVersion: 2
+guid: d260f38837799cb4b8f95f5488507837
+ModelImporter:
+  serializedVersion: 23
+  fileIDToRecycleName:
+    100000: bip
+    100002: bip Footsteps
+    100004: bip Head
+    100006: bip HeadNub
+    100008: bip L Calf
+    100010: bip L Clavicle
+    100012: bip L Finger0
+    100014: bip L Finger01
+    100016: bip L Finger0Nub
+    100018: bip L Finger1
+    100020: bip L Finger11
+    100022: bip L Finger1Nub
+    100024: bip L Foot
+    100026: bip L Forearm
+    100028: bip L Hand
+    100030: bip L Thigh
+    100032: bip L Toe0
+    100034: bip L Toe0Nub
+    100036: bip L UpperArm
+    100038: bip Neck
+    100040: bip Pelvis
+    100042: bip R Calf
+    100044: bip R Clavicle
+    100046: bip R Finger0
+    100048: bip R Finger01
+    100050: bip R Finger0Nub
+    100052: bip R Finger1
+    100054: bip R Finger11
+    100056: bip R Finger1Nub
+    100058: bip R Foot
+    100060: bip R Forearm
+    100062: bip R Hand
+    100064: bip R Thigh
+    100066: bip R Toe0
+    100068: bip R Toe0Nub
+    100070: bip R UpperArm
+    100072: bip Spine
+    100074: bip Spine1
+    100076: //RootNode
+    100078: lpFemale_casual_G
+    100080: rig_CharRoot
+    400000: bip
+    400002: bip Footsteps
+    400004: bip Head
+    400006: bip HeadNub
+    400008: bip L Calf
+    400010: bip L Clavicle
+    400012: bip L Finger0
+    400014: bip L Finger01
+    400016: bip L Finger0Nub
+    400018: bip L Finger1
+    400020: bip L Finger11
+    400022: bip L Finger1Nub
+    400024: bip L Foot
+    400026: bip L Forearm
+    400028: bip L Hand
+    400030: bip L Thigh
+    400032: bip L Toe0
+    400034: bip L Toe0Nub
+    400036: bip L UpperArm
+    400038: bip Neck
+    400040: bip Pelvis
+    400042: bip R Calf
+    400044: bip R Clavicle
+    400046: bip R Finger0
+    400048: bip R Finger01
+    400050: bip R Finger0Nub
+    400052: bip R Finger1
+    400054: bip R Finger11
+    400056: bip R Finger1Nub
+    400058: bip R Foot
+    400060: bip R Forearm
+    400062: bip R Hand
+    400064: bip R Thigh
+    400066: bip R Toe0
+    400068: bip R Toe0Nub
+    400070: bip R UpperArm
+    400072: bip Spine
+    400074: bip Spine1
+    400076: //RootNode
+    400078: lpFemale_casual_G
+    400080: rig_CharRoot
+    2100000: peopleColors
+    4300000: lpFemale_casual_G
+    7400000: Take 001
+    7400002: mixamo.com
+    9500000: //RootNode
+    13700000: lpFemale_casual_G
+  externalObjects: {}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+    previousCalculatedGlobalScale: 0.01
+    hasPreviousCalculatedGlobalScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

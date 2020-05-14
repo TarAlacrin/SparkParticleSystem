@@ -19,20 +19,6 @@ struct IntersectionData
 StructuredBuffer<FullTriangleData> RTriangleVertexes;
 AppendStructuredBuffer<IntersectionData> WAIntersections;
 
-float4 _Dimensions;
-
-float4 _InverseDimensions;// xyz=1/dim.xyz w= 1/(dim.x*dim.y)
-
-uint Index(uint3 coordid)
-{
-	return coordid.x + coordid.y * _Dimensions.x + coordid.z * _Dimensions.x * _Dimensions.y;
-}
-
-int3 Coord(float index)
-{
-	return int3(mod(index, _Dimensions.x), mod(floor(index * _InverseDimensions.x), _Dimensions.y), floor(index *_InverseDimensions.w));
-}
-
 float3 min3(float3 v1, float3 v2, float3 v3)
 {
     float3 v0;

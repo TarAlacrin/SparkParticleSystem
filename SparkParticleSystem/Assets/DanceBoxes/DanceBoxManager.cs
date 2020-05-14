@@ -26,9 +26,19 @@ namespace DanceBoxes
 
 		public Vector4 voxelDimensions4 {
 			get {
-				return new Vector4(voxelDimensions.x, voxelDimensions.y, voxelDimensions.z,0);
+				return new Vector4(voxelDimensions.x, voxelDimensions.y, voxelDimensions.z, voxelDimensions.x* voxelDimensions.y);
 			}
 		}
+
+		public Vector4 inverseVoxelDimensions4
+		{
+			get
+			{
+				return new Vector4(1f/voxelDimensions.x, 1f/voxelDimensions.y, 1f/voxelDimensions.z, 1f/(voxelDimensions.x * voxelDimensions.y));
+			}
+		}
+
+
 
 		public int voxelDimX{
 			get { return (int)voxelDimensions.x; }

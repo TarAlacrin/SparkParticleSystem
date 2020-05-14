@@ -70,7 +70,7 @@ namespace DanceBoxes
 
 			voxelAgeRecipient = voxelAgeRecipientObject.GetComponent<IWantVoxelAges>();
 			vertPosToCubeAgeCompute.SetVector("_Dimensions", DanceBoxManager.inst.voxelDimensions4);
-			vertPosToCubeAgeCompute.SetVector("_InverseDimensions", new Vector4(1f/DanceBoxManager.inst.voxelDimensions.x, 1f / DanceBoxManager.inst.voxelDimensions.y, 1f / DanceBoxManager.inst.voxelDimensions.z, 1f / (DanceBoxManager.inst.voxelDimensions.x * DanceBoxManager.inst.voxelDimensions.y)));
+			vertPosToCubeAgeCompute.SetVector("_InvDimensions", DanceBoxManager.inst.inverseVoxelDimensions4);
 		}
 
 
@@ -82,7 +82,7 @@ namespace DanceBoxes
 			int intersectionCount = (int)( (triangleCount * DanceBoxManager.inst.singleDimensionCount));
 			triangleIntersectionBuffer[READ] = new ComputeBuffer(intersectionCount, DanceBoxManager.inst.sizeOfIntersectionData, ComputeBufferType.Append);
 			triangleIntersectionBuffer[WRITE] = new ComputeBuffer(intersectionCount, DanceBoxManager.inst.sizeOfIntersectionData, ComputeBufferType.Append);
-			Debug.Log("INTERSECTION COUNT IS OFF THE CHART " + intersectionCount);
+			//Debug.Log("INTERSECTION COUNT IS OFF THE CHART " + intersectionCount);
 
 			vertexCount = parVertexCount;
 			vertPosToCubeAgeCompute.SetInt("_MaxCountVertexBuffer", vertexCount);
@@ -98,10 +98,6 @@ namespace DanceBoxes
 			{
 				DoCollisions();
 			}
-		}
-
-		private void LateUpdate()
-		{
 		}
 
 

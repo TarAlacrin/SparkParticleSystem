@@ -1,7 +1,4 @@
-﻿
-
-
-int intpoint_inside_trigon(float2 s, float2 a, float2 b, float2 c)
+﻿int intpoint_inside_trigon(float2 s, float2 a, float2 b, float2 c)
 {
     float as_x = s.x - a.x;
     float as_y = s.y - a.y;

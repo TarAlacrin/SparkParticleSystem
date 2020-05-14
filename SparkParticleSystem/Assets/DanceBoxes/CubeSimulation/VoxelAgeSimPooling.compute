@@ -1,0 +1,62 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+#include "Assets/DanceBoxes/ComputeIncludes.cginc"
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+StructuredBuffer<float> RNewCubeAges;
+StructuredBuffer<float> ROldCubeAges;
+RWStructuredBuffer<float> WCubeAges;
+
+float _DeltaTime;
+
+
+bool CheckCoordValid(int3 coords)
+{
+	float sizeCheck = ceil(saturate(coords.x - _Dimensions.x + 1) + saturate(coords.y - _Dimensions.y + 1) + saturate(coords.z - _Dimensions.z + 1));
+	sizeCheck += saturate(1 - coords.x) + saturate(1 - coords.y) + saturate(1 - coords.z);
+	return sizeCheck == 0;
+}
+
+float SafeGetOldAge(int3 coords)
+{
+	return ROldCubeAges[ClampedIndex(coords)];
+	//if (CheckCoordValid(coords))
+	//	return ROldCubeAges[Index(coords)];
+	//else
+	//	return 0;
+}
+
+float ageFromPooling(int3 coords)
+{
+	float age00 = SafeGetOldAge(coords + int3(-1, 0, -1));
+	float age10 = SafeGetOldAge(coords + int3(1, 0, -1));
+	float age01 = SafeGetOldAge(coords + int3(-1, 0, 1));
+	float age11 = SafeGetOldAge(coords + int3(1, 0, 1));
+
+	return max(age00, max(age10, max(age01, age11)));
+}
+
+
+[numthreads(THREADSIZE, 1, 1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    // TODO: insert actual code here!
+	uint index = Index(id);
+	int3 coords = Coord(index);
+	float newage = RNewCubeAges[index];
+
+
+	int3 oldcoords = coords + int3(0, 1, 0);
+
+	float oldage = SafeGetOldAge(oldcoords) - _DeltaTime * 1.0;
+
+
+	if (coords.y == 0)//this is what will do the pooling
+	{
+		//oldage = max(oldage, ageFromPooling(coords) - _DeltaTime * 1.0);
+	}
+
+
+	WCubeAges[index] = saturate(saturate(oldage) + saturate(newage));
+}

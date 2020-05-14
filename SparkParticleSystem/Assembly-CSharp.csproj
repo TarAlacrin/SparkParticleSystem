@@ -63,6 +63,8 @@
     <Compile Include="Assets\DanceBoxes\Alternate TrianglesToVoxelAgeMath\TrianglesToCubeAgeHandler.cs" />
     <Compile Include="Assets\DanceBoxes\BufferHandlerDanceBoxes.cs" />
     <Compile Include="Assets\DanceBoxes\BufferTools.cs" />
+    <Compile Include="Assets\DanceBoxes\ClearComputeHandler.cs" />
+    <Compile Include="Assets\DanceBoxes\CubeSimulation\VoxelAgeSimulationHandler.cs" />
     <Compile Include="Assets\DanceBoxes\DanceBoxManager.cs" />
     <Compile Include="Assets\DanceBoxes\DebugVoxelAgeGenerator.cs" />
     <Compile Include="Assets\DanceBoxes\IWantQuadData.cs" />
@@ -76,6 +78,9 @@
     <Compile Include="Assets\Extensions.cs" />
     <Compile Include="Assets\FPSAverager.cs" />
     <Compile Include="Assets\HoldEscapeToQuit.cs" />
+    <Compile Include="Assets\Huge Mocap Library\demo\scripts\demo.cs" />
+    <Compile Include="Assets\Huge Mocap Library\demo\scripts\smoothFollow.cs" />
+    <Compile Include="Assets\Pauser.cs" />
     <Compile Include="Assets\PostProcessing\Runtime\Attributes\GetSetAttribute.cs" />
     <Compile Include="Assets\PostProcessing\Runtime\Attributes\MinAttribute.cs" />
     <Compile Include="Assets\PostProcessing\Runtime\Attributes\TrackballAttribute.cs" />
@@ -126,12 +131,16 @@
     <Compile Include="Assets\SlowLerp.cs" />
     <Compile Include="Assets\TakeAShot.cs" />
     <None Include="Assets\PostProcessing\Resources\Shaders\DepthOfField.shader" />
+    <None Include="Assets\DanceBoxes\ClearComputeBuffer.compute" />
     <None Include="Assets\DanceBoxes\Alternate TrianglesToVoxelAgeMath\TrianglesToVoxelAges.compute" />
+    <None Include="Assets\DanceBoxes\CubeSimulation\VoxelAgeSimulator.compute" />
+    <None Include="Assets\Huge Mocap Library\READTHIS.txt" />
     <None Include="Assets\PostProcessing\Resources\Shaders\MotionBlur.cginc" />
     <None Include="Assets\PostProcessing\Resources\Shaders\Fog.shader" />
     <None Include="Assets\PostProcessing\Editor Resources\Monitors\ParadeRender.shader" />
     <None Include="Assets\PostProcessing\Resources\Shaders\LutGen.shader" />
     <None Include="Assets\PostProcessing\Editor Resources\Monitors\HistogramRender.shader" />
+    <None Include="Assets\DanceBoxes\CubeSimulation\VoxelAgeSimPooling.compute" />
     <None Include="Assets\WindNoise.cginc" />
     <None Include="Assets\PostProcessing\Editor Resources\UI\CurveBackground.shader" />
     <None Include="Assets\Turbulence-Library\Resources\shader.template" />
@@ -144,6 +153,7 @@
     <None Include="Assets\PostProcessing\Resources\Shaders\Tonemapping.cginc" />
     <None Include="Assets\DanceBoxes\DebugCubeAgeProducer.compute" />
     <None Include="Assets\PostProcessing\Editor Resources\Monitors\HistogramCompute.compute" />
+    <None Include="Assets\Huge Mocap Library\mocap animations\cmu-mocap-index-text.txt" />
     <None Include="Assets\PostProcessing\Resources\Shaders\Uber.shader" />
     <None Include="Assets\DanceBoxes\VertexPositionGrabber\VertexToStructuredBuffer.shader" />
     <None Include="Assets\PostProcessing\Resources\Shaders\Blit.shader" />
@@ -157,6 +167,7 @@
     <None Include="Assets\Turbulence-Library\Readme.txt" />
     <None Include="Assets\DanceBoxes\ComputeIncludes.cginc" />
     <None Include="Assets\PostProcessing\Resources\Shaders\BuiltinDebugViews.shader" />
+    <None Include="Assets\DanceBoxes\VoxelAgeToColorRaw\VoxelAgeToColorCubeRAWComputeUNUSED.compute" />
     <None Include="Assets\DanceBoxes\DebugQuadProducer.compute" />
     <None Include="Assets\PostProcessing\Resources\Shaders\Common.cginc" />
     <None Include="Assets\PostProcessing\Resources\Bluenoise64\COPYING.txt" />
