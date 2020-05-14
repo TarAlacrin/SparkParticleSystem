@@ -16,7 +16,7 @@ namespace DanceBoxes
 
 		ComputeBuffer[] voxelAgeBuffer = new ComputeBuffer[2];
 
-		public const string _casKernelName = "CSMain"; //"CSBlockMain";//"CSTwirl";
+		public const string _casKernelName = "CSMain";
 		public int caskernal
 		{
 			get
@@ -25,13 +25,8 @@ namespace DanceBoxes
 			}
 		}
 
-
-
-
-		// Start is called before the first frame update
 		void Start()
 		{
-
 			for (int i = 0; i < voxelAgeBuffer.Length; i++)
 			{
 				voxelAgeBuffer[i] = new ComputeBuffer(DanceBoxManager.inst.totalVoxels, DanceBoxManager.inst.sizeOfVoxelData, ComputeBufferType.Default);
@@ -56,7 +51,6 @@ namespace DanceBoxes
 
 			cubeAgeSimulationShader.Dispatch(caskernal, DanceBoxManager.inst.totalVoxelsThreadGroup, 1, 1);
 			voxelAgeRecipient.GiveSwappedVoxelAgeBuffer(voxelAgeBuffer[READ]);
-
 		}
 
 

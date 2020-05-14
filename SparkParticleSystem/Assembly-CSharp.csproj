@@ -71,6 +71,8 @@
     <Compile Include="Assets\DanceBoxes\IWantVertexPositions.cs" />
     <Compile Include="Assets\DanceBoxes\IWantVoxelAges.cs" />
     <Compile Include="Assets\DanceBoxes\QuadDataToRenderer.cs" />
+    <Compile Include="Assets\DanceBoxes\QuickMirrorScript\FastMirror.cs" />
+    <Compile Include="Assets\DanceBoxes\QuickMirrorScript\LazyMiror.cs" />
     <Compile Include="Assets\DanceBoxes\VertexPositionGrabber\CameraTestRenderer.cs" />
     <Compile Include="Assets\DanceBoxes\VertexPositionGrabber\VertexShaderToBuffer.cs" />
     <Compile Include="Assets\DanceBoxes\VoxelAgesToQuadData.cs" />
