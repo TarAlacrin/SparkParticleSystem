@@ -78,8 +78,6 @@
     <Compile Include="Assets\Extensions.cs" />
     <Compile Include="Assets\FPSAverager.cs" />
     <Compile Include="Assets\HoldEscapeToQuit.cs" />
-    <Compile Include="Assets\Huge Mocap Library\demo\scripts\demo.cs" />
-    <Compile Include="Assets\Huge Mocap Library\demo\scripts\smoothFollow.cs" />
     <Compile Include="Assets\Pauser.cs" />
     <Compile Include="Assets\PostProcessing\Runtime\Attributes\GetSetAttribute.cs" />
     <Compile Include="Assets\PostProcessing\Runtime\Attributes\MinAttribute.cs" />
@@ -134,7 +132,6 @@
     <None Include="Assets\DanceBoxes\ClearComputeBuffer.compute" />
     <None Include="Assets\DanceBoxes\Alternate TrianglesToVoxelAgeMath\TrianglesToVoxelAges.compute" />
     <None Include="Assets\DanceBoxes\CubeSimulation\VoxelAgeSimulator.compute" />
-    <None Include="Assets\Huge Mocap Library\READTHIS.txt" />
     <None Include="Assets\PostProcessing\Resources\Shaders\MotionBlur.cginc" />
     <None Include="Assets\PostProcessing\Resources\Shaders\Fog.shader" />
     <None Include="Assets\PostProcessing\Editor Resources\Monitors\ParadeRender.shader" />
@@ -153,7 +150,6 @@
     <None Include="Assets\PostProcessing\Resources\Shaders\Tonemapping.cginc" />
     <None Include="Assets\DanceBoxes\DebugCubeAgeProducer.compute" />
     <None Include="Assets\PostProcessing\Editor Resources\Monitors\HistogramCompute.compute" />
-    <None Include="Assets\Huge Mocap Library\mocap animations\cmu-mocap-index-text.txt" />
     <None Include="Assets\PostProcessing\Resources\Shaders\Uber.shader" />
     <None Include="Assets\DanceBoxes\VertexPositionGrabber\VertexToStructuredBuffer.shader" />
     <None Include="Assets\PostProcessing\Resources\Shaders\Blit.shader" />
